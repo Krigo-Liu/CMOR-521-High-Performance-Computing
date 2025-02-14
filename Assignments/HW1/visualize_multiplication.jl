@@ -13,7 +13,7 @@ rename!(recursive_results_mm, Symbol("Time(s)") => :Time_s)
 
 # 2. 初始化空图
 plt = plot(
-    title  = "Matrix Size vs. Time (Matrix multiplication O3)",
+    title  = "Matrix Size vs. Time (Matrix multiplication O2)",
     xlabel = "Matrix Size",
     ylabel = "Time (s)",
     legend = :left,

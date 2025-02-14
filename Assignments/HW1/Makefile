@@ -56,6 +56,6 @@ $(OBJ_DIR):
 
 # Clean build artifacts
 clean:
-	rm -rf $(RESULT_DIR) $(OBJ_DIR) matrix_transpose_02 matrix_transpose_03 matrix_multiplication_02 matrix_multiplication_03 
+	rm -rf $(RESULT_DIR) $(OBJ_DIR) matrix_transpose_02 matrix_transpose_03 matrix_multiplication_02 matrix_multiplication_03 matrix_transpose_col
 
 .PHONY: all clean

@@ -79,7 +79,6 @@ void multiply_naive(const int n, double* C, const double* A, const double* B) {
 
 // ------------------------------------------------
 // Cache-blocked matrix multiplication
-// Typical "block-based" multiplication
 // ------------------------------------------------
 void multiply_block(const int n, double* C, const double* A, const double* B) {
     // Initialize C to zero
@@ -107,10 +106,6 @@ void multiply_block(const int n, double* C, const double* A, const double* B) {
 
 // ------------------------------------------------
 // Recursive matrix multiplication
-// Here we use a divide-and-conquer approach:
-// - If the submatrix size <= threshold, use naive
-// - Otherwise, split the matrices into four quadrants
-//   and recursively compute
 // ------------------------------------------------
 static void multiply_recursive_helper(const int n,
                                       double* C, const double* A, const double* B,
