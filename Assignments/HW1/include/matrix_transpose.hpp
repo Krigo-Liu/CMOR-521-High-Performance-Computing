@@ -1,11 +1,23 @@
-#ifndef MATRIX_TRANSPOSE_HPP
-#define MATRIX_TRANSPOSE_HPP
+#ifndef MATRIX_MULTIPLICATION_HPP
+#define MATRIX_MULTIPLICATION_HPP
 
-#include <vector>
-#include <fstream>
-#include <cmath>
 #include <iostream>
+#include <chrono>
+#include <cmath>
 #include <functional>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+// Default BLOCK_SIZE, can be changed
+extern int BLOCK_SIZE;
+
+// Default threshold, can be changed
+extern int threshold;
+
+// Check if the header has been written
+extern bool header_written;
 
 // Naive
 void transpose_naive(const int n, double *AT, double *A);
@@ -17,16 +29,39 @@ void transpose_blocked(const int n, double *AT, double *A, int block_size);
 void transpose_recursive(const int n, double *AT, double *A, int threshold);
 
 // Timing function using std::function
-void time_transpose(const std::function<void(const int, double*, double*)> &transpose,
-                    const int n, double *AT, double *A, double &time);
+void time_transpose(
+    const std::function<void(const int, double*, double*)> &transpose,
+    const int n,
+    double *AT,
+    const double *A,
+    double &time
+);
 
 // Analyze naive transpose
-void analyze_naive(int n, std::vector<double> &A, std::vector<double> &AT);
+double analyze_naive(const int n, double * AT, double * A);
 
 // Analyze different block sizes
-void analyze_block_sizes(int n, std::vector<double> &A, std::vector<double> &AT);
+double analyze_block(const int n, double * AT, double * A);
 
 // Analyze different recursion thresholds
-void analyze_threshold_sizes(int n, std::vector<double> &A, std::vector<double> &AT);
+double analyze_recursive(const int n, double * AT, double * A);
 
-#endif // MATRIX_TRANSPOSE_HPP
+// Change the block size
+void change_block_size(int block_size);
+
+// Change the threshold
+void change_threshold(int threshold_size);
+
+
+// Avoid writing the header multiple times
+void already_header_written();
+
+// Function to compute relative error
+double compute_relative_error(const double * AT_expected, const double * AT_computed, int n);
+
+// Function to check if the relative error is within machine precision
+void check_transpose_accuracy(const double * AT_expected, const double * AT_computed, int n);
+
+
+#endif // MATRIX_MULTIPLICATION_HPP
+

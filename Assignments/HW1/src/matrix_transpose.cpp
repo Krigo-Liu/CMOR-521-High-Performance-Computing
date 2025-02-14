@@ -2,61 +2,121 @@
 
 using namespace std;
 
-// -----------------------------------------------------
+
+
+// ------------------------------------------------
+// Change the size of BLOCK_SIZE
+// ------------------------------------------------
+void change_block_size(int block_size) {
+    BLOCK_SIZE = block_size;
+}
+
+// ------------------------------------------------
+// Change the size of BLOCK_SIZE
+// ------------------------------------------------
+void change_threshold(int threshold_size) {
+    threshold = threshold_size;
+}
+
+// ------------------------------------------------
+// Set the header as written
+// ------------------------------------------------
+void already_header_written() {
+    header_written = true;
+}
+
+// ------------------------------------------------
+// Function to compute relative error
+// ------------------------------------------------
+double compute_relative_error(const double * AT_expected, const double * AT_computed, int n) {
+    double max_relative_error = 0.0;
+    double epsilon = numeric_limits<double>::epsilon();  // Machine precision ~ 1e-16
+
+    for (int i = 0; i < n * n; i++) {
+        double abs_error = fabs(AT_expected[i] - AT_computed[i]);
+        double denom = fabs(AT_expected[i]) + epsilon;  // Avoid division by zero
+        double relative_error = abs_error / denom;
+
+        max_relative_error = max(max_relative_error, relative_error);
+    }
+    return max_relative_error;
+}
+
+// ------------------------------------------------
+// Function to check if the relative error is within machine precision
+// ------------------------------------------------
+void check_transpose_accuracy(const double * AT_expected, const double * AT_computed, int n) {
+    double relative_error = compute_relative_error(AT_expected, AT_computed, n);
+    
+    cout << "Max Relative Error: " << relative_error << endl;
+
+    if (relative_error < numeric_limits<double>::epsilon()) {
+        cout << "✅ Transpose implementation is accurate within machine precision.\n";
+    } else {
+        cout << "❌ WARNING: Transpose implementation has significant numerical errors!\n";
+    }
+}
+
+
+// ------------------------------------------------
 // Naive Transposition
-// -----------------------------------------------------
-void transpose_naive(const int n, double *AT, double *A) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            AT[j * n + i] = A[i * n + j];
+// ------------------------------------------------
+void transpose_naive(const int n, double * AT, double * A) {
+    for (int i = 0; i < n; ++i){
+        for (int j = 0; j < n; ++j){
+            AT[i * n + j] = A[j * n + i];
+            // AT[j * n + i] = A[i * n + j]; // col major
         }
     }
 }
 
-// -----------------------------------------------------
+// ------------------------------------------------
 // Cache-Blocked Transposition
-// -----------------------------------------------------
-void transpose_blocked(const int n, double *AT, double *A, int block_size) {
-    for (int i = 0; i < n; i += block_size) {
-        for (int j = 0; j < n; j += block_size) {
-            for (int bi = i; bi < i + block_size && bi < n; bi++) {
-                for (int bj = j; bj < j + block_size && bj < n; bj++) {
-                    AT[bj * n + bi] = A[bi * n + bj];
+// -------------------------------------------------
+
+void transpose_block(const int n, double * AT, double * A) {
+    for (int i = 0; i < n; i += BLOCK_SIZE) {
+        for (int j = 0; j < n; j += BLOCK_SIZE) {
+            for (int ii = i; ii < i + BLOCK_SIZE && ii < n; ii++) {
+                for (int jj = j; jj < j + BLOCK_SIZE && jj < n; jj++) {
+                    AT[ii * n + jj] = A[jj * n + ii];
+                    // AT[jj * n + ii] = A[ii * n + jj]; // col major
                 }
             }
         }
     }
 }
 
-// -----------------------------------------------------
+// ------------------------------------------------
 // Recursive Transposition
-// -----------------------------------------------------
-static void transpose_recursive_helper(const int n, double *AT, double *A,
-                                       int row, int col, int size, int threshold) {
+// ------------------------------------------------
+
+static void transpose_recursive_helper(const int n, double * AT, double * A, int row, int col, int size, int threshold) {
     if (size <= threshold) {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 AT[(col + j) * n + (row + i)] = A[(row + i) * n + (col + j)];
+                // AT[(row + i) * n + (col + j)] = A[(col + j) * n + (row + i)]; // col major
             }
         }
     } else {
         int half = size / 2;
-        transpose_recursive_helper(n, AT, A, row,      col,      half, threshold);
-        transpose_recursive_helper(n, AT, A, row,      col+half, half, threshold);
-        transpose_recursive_helper(n, AT, A, row+half, col,      half, threshold);
-        transpose_recursive_helper(n, AT, A, row+half, col+half, half, threshold);
+        transpose_recursive_helper(n, AT, A, row, col, half, threshold);
+        transpose_recursive_helper(n, AT, A, row, col + half, half, threshold);
+        transpose_recursive_helper(n, AT, A, row + half, col, half, threshold);
+        transpose_recursive_helper(n, AT, A, row + half, col + half, half, threshold);
     }
 }
 
-void transpose_recursive(const int n, double *AT, double *A, int threshold) {
+void transpose_recursive(const int n, double * AT, double * A) {
     transpose_recursive_helper(n, AT, A, 0, 0, n, threshold);
 }
 
-// -----------------------------------------------------
+
+// ------------------------------------------------
 // Timing function (uses std::function)
-// -----------------------------------------------------
-void time_transpose(const std::function<void(const int, double*, double*)> &transpose,
-                    const int n, double *AT, double *A, double &time) {
+// ------------------------------------------------
+void time_transpose(const std::function<void(const int, double*, double*)> &transpose, const int n, double * AT, double * A, double &time) {
     int trials = 25;
     double min_time = INFINITY;
     clock_t start, end;
@@ -74,106 +134,55 @@ void time_transpose(const std::function<void(const int, double*, double*)> &tran
     time = min_time;
 }
 
-// -----------------------------------------------------
-// Analyze naive transpose across multiple sizes
-// Generates naive_results.csv
-// -----------------------------------------------------
-void analyze_naive() {
-    vector<int> sizes = {256, 512, 768, 1024, 2048};
-    ofstream file("naive_results.csv");
-    file << "Matrix_Size,Time (s)\n";
-
-    for (int curr_n : sizes) {
-        // Allocate for each test
-        vector<double> A(curr_n * curr_n), AT(curr_n * curr_n);
-
-        // Initialize A
-        for (int i = 0; i < curr_n * curr_n; i++) {
-            A[i] = static_cast<double>(rand()) / RAND_MAX;
-        }
-
-        double measured_time;
-        time_transpose(transpose_naive, curr_n, AT.data(), A.data(), measured_time);
-        file << curr_n << "," << measured_time << "\n";
-    }
-
-    file.close();
+// ------------------------------------------------
+// Analyze naive transposition accross multiple sizes
+// Generates a csv file with the results
+// ------------------------------------------------
+double analyze_naive(const int n, double * AT, double * A) {
+    double measure_time;
+    time_transpose([&](const int n, double * AT, double * A) {
+        transpose_naive(n, AT, A);
+    }, n, AT, A, measure_time);
+    return measure_time;
+    
 }
 
+// ------------------------------------------------
+// Analyze block transposition accross multiple sizes
+// Generates a csv file with the results
+// -------------------------------------------------
+double analyze_block(const int n, double * AT, double * A) {
+    double measure_time;
+    double *AT_expected = new double[n * n];
 
-// -----------------------------------------------------
-// Analyze different block sizes
-// -----------------------------------------------------
-void analyze_block_sizes(int n, vector<double> &A, vector<double> &AT) {
-    vector<int> block_sizes = {8, 16, 32, 64, 128};
-    ofstream file("block_sizes_results.csv");
-    file << "Block_Size,Time (s)\n";
+    // Compute correct transposition
+    transpose_naive(n, AT_expected, A);
 
-    for (int block_size : block_sizes) {
-        double best_time;
-        time_transpose(
-            [&](const int n, double *dest, double *src) {
-                transpose_blocked(n, dest, src, block_size);
-            },
-            n,
-            AT.data(),
-            A.data(),
-            best_time
-        );
+    time_transpose([&](const int n, double * AT, double * A) {
+        transpose_block(n, AT, A);
+    }, n, AT, A, measure_time);
 
-        file << block_size << "," << best_time << "\n";
-    }
-    file.close();
+    // Check accuracy
+    check_transpose_accuracy(AT_expected, AT, n);
+    return measure_time;
 }
 
-// -----------------------------------------------------
-// Analyze different recursion thresholds
-// -----------------------------------------------------
-void analyze_threshold_sizes(int n, vector<double> &A, vector<double> &AT) {
-    vector<int> thresholds = {16, 32, 64, 128, 256};
-    ofstream file("threshold_sizes_results.csv");
-    file << "Threshold_Size,Time (s)\n";
+// ------------------------------------------------
+// Analyze recursive transposition accross multiple sizes
+// Generates a csv file with the results
+// ------------------------------------------------
+double analyze_recursive(const int n, double * AT, double * A) {
+    double measure_time;
+    double *AT_expected = new double[n * n];
 
-    for (int threshold : thresholds) {
-        double best_time;
-        time_transpose(
-            [&](const int n, double *dest, double *src) {
-                transpose_recursive(n, dest, src, threshold);
-            },
-            n,
-            AT.data(),
-            A.data(),
-            best_time
-        );
+    // Compute correct transposition
+    transpose_naive(n, AT_expected, A);
 
-        file << threshold << "," << best_time << "\n";
-    }
-    file.close();
-}
+    time_transpose([&](const int n, double * AT, double * A) {
+        transpose_recursive(n, AT, A);
+    }, n, AT, A, measure_time);
 
-// -----------------------------------------------------
-// main()
-// -----------------------------------------------------
-int main() {
-    int n = 1024; // Matrix size
-
-    // Allocate using std::vector
-    vector<double> A(n * n);
-    vector<double> AT(n * n);
-
-    // Initialize matrix
-    for (int i = 0; i < n * n; i++) {
-        A[i] = static_cast<double>(rand()) / RAND_MAX;
-    }
-
-    // Analyze block sizes
-    analyze_block_sizes(n, A, AT);
-
-    // Analyze recursion thresholds
-    analyze_threshold_sizes(n, A, AT);
-
-    // Analyze naive transpose
-    analyze_naive();
-
-    return 0;
+    // Check accuracy
+    check_transpose_accuracy(AT_expected, AT, n);
+    return measure_time;
 }
