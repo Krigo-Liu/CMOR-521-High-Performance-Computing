@@ -2,7 +2,7 @@ using CSV
 using DataFrames
 using Plots
 
-# 1. 读取数据并改列名
+# 1. Read data and rename columns
 naive_results_mm     = CSV.read("./result/naive_results_mm.csv", DataFrame)
 block_results_mm     = CSV.read("./result/block_results_mm.csv", DataFrame)
 recursive_results_mm = CSV.read("./result/recursive_results_mm.csv", DataFrame)
@@ -11,7 +11,7 @@ rename!(naive_results_mm, Symbol("Time(s)") => :Time_s)
 rename!(block_results_mm, Symbol("Time(s)") => :Time_s)
 rename!(recursive_results_mm, Symbol("Time(s)") => :Time_s)
 
-# 2. 初始化空图
+# 2. Initialize an empty plot
 plt = plot(
     title  = "Matrix Size vs. Time (Matrix multiplication O2)",
     xlabel = "Matrix Size",
@@ -21,7 +21,7 @@ plt = plot(
 )
 
 # --------------------
-# 3. 绘制 Naive (单条线，实线、单色、圆圈)
+# 3. Plot Naive Implementation
 # --------------------
 plot!(
     plt,
@@ -37,10 +37,10 @@ plot!(
 )
 
 # --------------------
-# 4. 绘制 Block Results (点线，不同 Block Size 不同颜色、相同标记)
+# 4. Plot Block Implementation
 # --------------------
 block_sizes = unique(block_results_mm.Block_Size)
-# 准备一组颜色用于区分 Block Size
+
 block_palette = distinguishable_colors(length(block_sizes))
 
 for (i, bs) in enumerate(block_sizes)
@@ -60,10 +60,10 @@ for (i, bs) in enumerate(block_sizes)
 end
 
 # --------------------
-# 5. 绘制 Recursive Results (虚线，不同 Threshold 不同颜色、相同标记)
+# 5. Plot Recursive Implementation
 # --------------------
 thresholds = unique(recursive_results_mm.Threshold)
-# 准备一组颜色用于区分 Threshold
+
 threshold_palette = distinguishable_colors(length(thresholds))
 
 for (j, thr) in enumerate(thresholds)
