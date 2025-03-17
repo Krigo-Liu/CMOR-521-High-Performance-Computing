@@ -115,12 +115,25 @@ My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src
         \end{verbatim}
 \end{itemize}
 
+\newpage
 
 \section{Analysis}
-In this section, I will show you the analysis for these results
+In this section, I will show you the analysis for these results. All the parallel \textit{efficiency} for strong scaling, I followed the Amdahl's law:
+\begin{equation*}
+    E(n) = \frac{S(n)}{n}
+\end{equation*}
+where 
+\begin{equation*}
+    S(n) = \frac{T(1)}{T(n)}
+\end{equation*}
+
+For the weak scaling, I only compute the parallel speed-up with
+\begin{equation*}
+    S(n) = \frac{T(1)}{T(n)}
+\end{equation*}
 
 \subsection{AXPY}
-For the \verb|AXPY| method in \verb|version_1| and \verb|version_2|, from the following table:
+For the \verb|AXPY| method in \verb|version_1| and \verb|version_2|, from the following table (Strong Scaling):
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|}
@@ -144,6 +157,7 @@ For the \verb|AXPY| method in \verb|version_1| and \verb|version_2|, from the fo
 \end{table}
 We can find that for \verb|version_1|, after we increased the number of threads, the runtime without keeping decreasing instead of increasing, like \verb|Threads = 16|. The efficiency increased at first and then decreased. On the other hands, we can see that the \verb|version_2| is more general since it's runtime keeping decreased and the efficiency reduced normally. 
 
+\newpage
 \subsubsection{Strong and Weak scaling}
 In this part, I will perform strong and weak scaling studies for up to 16 threads. The reults table is as following:
 \begin{table}[H]
@@ -151,7 +165,7 @@ In this part, I will perform strong and weak scaling studies for up to 16 thread
 \resizebox{\textwidth}{!}{
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Scaling Experiment} & \textbf{AXPY Version} & \textbf{Threads} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\textbf{Scaling Experiment} & \textbf{AXPY Version} & \textbf{Threads} & \textbf{Runtime (s)} & \textbf{Efficiency (Speed Up)} \\ \hline
 \multirow{10}{*}{Strong Scaling} 
 & \multirow{5}{*}{Version 1} 
 & 1  & 5.68555  & 1.000000 \\ \cline{3-5}
@@ -186,6 +200,15 @@ In this part, I will perform strong and weak scaling studies for up to 16 thread
 \label{tab:axpy_scaling}
 \end{table}
 
+From the table \ref{tab:axpy_scaling}, we can find the result of runtime and parallel efficiency for each type of scaling. 
+
+I think \textbf{version 2} clearly scales better than Version 1 in both the strong‐scaling and weak‐scaling experiments. 
+\begin{itemize}
+    \item In strong scaling, version 2 starts at about 3.13s (1 thread) and goes down to about 0.31 s (16 threads). That is roughly a 10× speedup, with an efficiency of around 64\% on 16 threads. Version 1, on the other hand, shows a speedup of only about 3.4× at 16threads (down from 5.69s to 1.68s), for an efficiency around 21\%. 
+    \item In weak scaling, the ideal is to keep runtime nearly constant as you add threads and proportionally increase the problem size. Version 2 remains under a second up to 16 threads (0.41s at 16threads), while Version 1 increases to over 21s at 16 threads. Accordingly, Version 2’s efficiency in the weak‐scaling section (0.47 at 16 threads) is substantially higher than Version 1’s (0.011 at 16 threads).
+\end{itemize}
+
+\newpage
 \subsubsection{Roofline Model(CMOR 521)}
 The figure of Roofline is:
 \begin{figure}[H]
@@ -202,11 +225,11 @@ The percentage of peak performance do you achieve for each case are as following
 \textbf{Threads} & \textbf{AXPY Version} & \textbf{Performance (\% of Peak)} \\
 \midrule
 1 & v1 & 1.53\% \\
-2 & v1 & 5.26\% \\
-8 & v1 & 7.80\% \\
+2 & v1 & 2.63\% \\
+8 & v1 & 0.98\% \\
 1 & v2 & 3.39\% \\
-2 & v2 & 6.27\% \\
-8 & v2 & 19.55\% \\
+2 & v2 & 3.13\% \\
+8 & v2 & 2.44\% \\
 \bottomrule
 \end{tabular}
 \caption{Achieved performance compared to theoretical peak performance}
@@ -263,7 +286,7 @@ In this part, I will perform strong and weak scaling studies for up to 16 thread
 \resizebox{\textwidth}{!}{
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\textbf{Experiment} & \textbf{Version} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\textbf{Experiment} & \textbf{Version} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency (Speed Up)} \\ \hline
 \multirow{10}{*}{Strong Scaling} 
 & \multirow{5}{*}{MatMul Standard} 
 & 1 & 2048 & 27.10687 & 1.00000 \\ \cline{3-6}
@@ -307,7 +330,7 @@ In this part, I will perform strong and weak scaling studies for up to 16 thread
 \resizebox{\textwidth}{!}{
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Scaling Experiment} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\textbf{Scaling Experiment} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency (Speed Up)} \\ \hline
 \multirow{5}{*}{Strong Scaling} 
 & 1 & 2048 & 24.50431 & 1.00000 \\ \cline{2-5}
 & 2 & 2048 & 12.29185 & 0.99677 \\ \cline{2-5}
@@ -326,12 +349,12 @@ In this part, I will perform strong and weak scaling studies for up to 16 thread
 \label{tab:recursive_matmul_scaling}
 \end{table}
 
-
+\newpage
 \subsection{(For CMOR 521)  Integral Pi}
 In this part, I re-implement the integration code used in class using atomic operations and compared the performance of atomic operations to the reduction-based implementation by performing a strong scaling study for each implementation.
 
 This part is the integration code used in class using atomic operations
-\begin{verbatim}
+\begin{lstlisting}[style=C++Style]
 // Function that computes pi using atomic updates
 double integral_atomic(int num_steps) {
     double step = 1.0 / num_steps;
@@ -345,10 +368,10 @@ double integral_atomic(int num_steps) {
     }
     return step * sum;
 }
-\end{verbatim}
+\end{lstlisting}
 
 This part is the integration code with the reduction-based implementation
-\begin{verbatim}
+\begin{lstlisting}[style=C++Style]
 // Function that computes pi using the reduction clause
 double integral_reduction(int num_steps) {
     double step = 1.0 / num_steps;
@@ -360,7 +383,7 @@ double integral_reduction(int num_steps) {
     }
     return step * sum;
 }
-\end{verbatim}
+\end{lstlisting}
 
 The strong scaling result table is as following:
 
