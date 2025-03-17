@@ -35,17 +35,21 @@ scatter!(CI_add_vec * ones(length(timings_v2)), num_gflops ./ timings_v2, label=
 
 
 # Optionally, save the generated plot to a file.
-savefig("./docs/roofline_plot.png")
+# savefig("./docs/roofline_plot.png")
 
-
+threads_vec = [1, 2, 8]
 
 # Calculate performance (GFLOPS/s)
 performance_v1 = num_gflops ./ timings_v1
 performance_v2 = num_gflops ./ timings_v2
 
+# For each thread count T, the machine’s peak is T × peak_performance_single_core.
+# So we make a vector of thread‐specific peaks:
+peak_for_threads = threads_vec .* peak_performance
+
 # Calculate percentage of peak performance
-percentage_v1 = performance_v1 ./ peak_performance .* 100
-percentage_v2 = performance_v2 ./ peak_performance .* 100
+percentage_v1 = performance_v1 ./ peak_for_threads .* 100
+percentage_v2 = performance_v2 ./ peak_for_threads .* 100
 
 # Create a DataFrame for clarity (using DataFrames.jl)
 using DataFrames
