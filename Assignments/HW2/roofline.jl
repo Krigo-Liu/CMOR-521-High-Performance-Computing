@@ -60,4 +60,4 @@ ylabel!("Performance (GFLOPS/s)", fontsize=14)
 title!("Roofline Model for 1, 2, and 8 Threads", fontsize=16)
 
 # Optionally, save the generated plot to a file.
-# savefig("roofline_plot.png")
+savefig("./docs/roofline_plot.png")
