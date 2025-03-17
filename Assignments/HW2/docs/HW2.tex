@@ -66,17 +66,20 @@ My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src
 \end{figure}
 
 \begin{itemize}
-    \item The \verb|main_axpy.cpp|, \verb|main_matmul_block.cpp|, \verb|main_matmul_recursive.cpp|, and \verb|main_integral.cpp| are include the \verb|main| functions for the parallelized \verb|AXPY|, \verb|Cache Block Matrix Multiplication|, \verb|Recursive Matrix Multiplication|, and \verb|Integral Pi|
+    \item The \verb|main_axpy.cpp|, \verb|main_matmul_block.cpp|, \verb|main_compare_matmul_block.cpp|, \verb|main_matmul_recursive.cpp|, and \verb|main_integral.cpp| are include the \verb|main| functions for the parallelized \verb|AXPY|, \verb|Cache Block Matrix Multiplication|, \verb|Recursive Matrix Multiplication|, and \verb|Integral Pi|
     \item The \verb|roofline.jl| plot the roofline figure, and calculate the percentage of peak performance.
+    \item The \verb|main_axpy|, \verb|main_matmul_block|, \verb|main_matmul_recursive|, \verb|main_compare_matmul_block|, and \verb|main_integral| are execution file which already by compiled. You can directly run these file in your local computer as long as you have 16 threads in your computer. If you want to compile each of them, you can using the command in the next section.
+    \item The \verb|axpy.slurm|, \verb|matmulBlock.slurm|, \verb|matmulRecursive.slurm|, and \verb|integral.slurm| are script file to help run the execution file in NOTXs. I already set 16 cores for each of task. But its were made by my personal account. You can directly using the command in the next section to run the file after changed the account.
     \item The folder \texttt{docs/} is to store the Latex file and images.
     \item The folder \texttt{include/} is the place for \verb|.hpp| files. The \verb|axpy_omp.hpp|, \verb|cache_block_matmul.hpp|, \verb|recursive_matmul.hpp|, and \verb|integral.hpp| are in there.
     \item The folder \texttt{src/} is the place for \verb|axpy_omp.cpp|, \verb|cache_block_matmul.cpp|, \verb|recursive_matmul.cpp|, and \verb|integral.cpp|  which are used to implemented all different methods for matrix transpose, matrix multiplication, and the timing analysis functions.
+
 
 \end{itemize}
 
 \newpage
 
-\section{How to Build and Run the Code}
+\section{How to Build and Run the Code (In NOTXs)}
 \label{sec:build_run}
 \begin{itemize}
     \item \textbf{Build Instructions:} 
@@ -89,7 +92,7 @@ My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src
             
         \end{itemize}
     \item \textbf{Running Instructions:} 
-        Once you build the execution file, it will appear as driver files. You can use the following command to run the code in notsx:
+        Once you build the execution file, it will appear as driver files. You can use the following command to run the code in NOTXs:
         \begin{verbatim}
             sbatch axpy.slurm
             sbatch matmulBlock.slurm
