@@ -1,0 +1,30 @@
+# calculates a roofline plot for axpy on an Intel(R) Xeon(R) Gold 6230 CPU @ 2.10GHz
+
+# peak performance in GFLOPS/sec
+num_cores = 20
+peak_performance = 352 / num_cores # GFLOPS/sec
+
+# peak BW should be between 131.13 and 140 GB/second
+memory_speed = 2933 # MHz; bits per second
+num_memory_channels = 6 
+data_width = 8 # size of memory bus in bytes; see also cache_alignment
+
+# units of GB/seconds
+peak_bandwidth = memory_speed * num_memory_channels * 
+    data_width / 1000
+peak_bandwidth = 131.13 # measured estimate GB/s
+
+using Plots
+CI = LinRange(0, .25, 1000)
+roofline = @. min(peak_performance, CI * peak_bandwidth)
+plot(CI, roofline)
+xlabel!("Computational intensity (CI)", fontsize=14)
+ylabel!("GFLOPS / second", fontsize=14)
+
+CI_add_vec = 2 / 3
+n = [8_000, 8_000, 16_000, 16_000]
+timings = [2218, 1523] * 1e-9 # in seconds
+
+num_gflops = 2 * n * 1e-9
+scatter!(CI_add_vec * ones(length(timings)), num_gflops ./ timings)
+# APP_peak_performance = .1056 * 1000 / .3 # .3 = weighting factor for non-vector process

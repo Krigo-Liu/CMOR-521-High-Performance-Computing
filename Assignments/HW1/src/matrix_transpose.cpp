@@ -62,7 +62,8 @@ void check_transpose_accuracy(const double * AT_expected, const double * AT_comp
 void transpose_naive(const int n, double * AT, double * A) {
     for (int i = 0; i < n; ++i){
         for (int j = 0; j < n; ++j){
-            AT[j * n + i] = A[i * n + j]; 
+            // AT[j * n + i] = A[i * n + j]; 
+            AT[i * n + j] = A[j * n + i];  
         }
     }
 }
@@ -70,13 +71,13 @@ void transpose_naive(const int n, double * AT, double * A) {
 // ------------------------------------------------
 // Cache-Blocked Transposition
 // -------------------------------------------------
-
 void transpose_block(const int n, double * AT, double * A) {
     for (int i = 0; i < n; i += BLOCK_SIZE) {
         for (int j = 0; j < n; j += BLOCK_SIZE) {
             for (int ii = i; ii < i + BLOCK_SIZE && ii < n; ii++) {
                 for (int jj = j; jj < j + BLOCK_SIZE && jj < n; jj++) {
-                    AT[jj * n + ii] = A[ii * n + jj]; 
+                    // AT[jj * n + ii] = A[ii * n + jj]; 
+                    AT[ii * n + jj] = A[jj * n + ii];
                 }
             }
         }
@@ -86,7 +87,6 @@ void transpose_block(const int n, double * AT, double * A) {
 // ------------------------------------------------
 // Recursive Transposition
 // ------------------------------------------------
-
 static void transpose_recursive_helper(const int n, double * AT, double * A, int row, int col, int size, int threshold) {
     if (size <= threshold) {
         for (int i = 0; i < size; i++) {
@@ -139,7 +139,6 @@ double analyze_naive(const int n, double * AT, double * A) {
         transpose_naive(n, AT, A);
     }, n, AT, A, measure_time);
     return measure_time;
-    
 }
 
 // ------------------------------------------------
