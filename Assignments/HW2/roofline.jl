@@ -5,59 +5,57 @@ using Plots
 # --------------------------------------------------------------------------------
 
 # According to your lscpu output, your system has 16 cores in total 
-# (1 core per socket, 16 sockets). Set the theoretical single-core peak performance.
-# NOTE: Replace 35.2 with your actual measured or calculated GFLOPS per core if available.
-peak_single = 35.2  # GFLOPS per core (example value)
+num_cores = 16
+peak_performance = 352 / num_cores # GFLOPS/sec
 
-# Memory parameters:
-# These are based on your memory's operating frequency and architecture.
-# memory_speed: Memory frequency in MHz (example: 2933 MHz)
-# num_memory_channels: Number of memory channels (example: 6)
-# data_width: The width of each memory channel in bytes (example: 8 bytes)
+# peak BW should be between 131.13 and 140 GB/second
 memory_speed = 2933          # in MHz
 num_memory_channels = 6      
 data_width = 8               # in bytes
 
 # Calculate the theoretical peak memory bandwidth (in GB/s)
-# The formula is: memory_speed * num_memory_channels * data_width / 1000
-# Often it's better to use measured values (e.g., via STREAM benchmark). 
 peak_bandwidth = memory_speed * num_memory_channels * data_width / 1000  
-# Overwrite with a measured value if available (example value: 131.13 GB/s)
 
-# --------------------------------------------------------------------------------
-# Define the Computational Intensity (CI) Range
-# --------------------------------------------------------------------------------
 # CI is defined as FLOPs per byte of data. Adjust the range if needed.
-CI = LinRange(0, 3.0, 1000)
-
-# --------------------------------------------------------------------------------
-# Define Thread Configurations and Plot the Roofline
-# --------------------------------------------------------------------------------
-# We want to generate roofline plots for 1, 2, and 8 threads.
-thread_counts = [1, 2, 8]
-
-# Initialize an empty plot.
-plot()
-
-# Loop through each thread configuration.
-for t in thread_counts
-    # Calculate the theoretical peak performance for t threads.
-    # For example, for t threads, the peak performance is t times the single-core peak.
-    peak_perf = peak_single * t
-
-    # The roofline model for each CI value is the minimum of:
-    # - The compute bound (peak_perf)
-    # - The memory bound (CI * peak_bandwidth)
-    roofline = @. min(peak_perf, CI * peak_bandwidth)
-
-    # Plot the roofline curve for this thread count.
-    plot!(CI, roofline, label="Roofline for $t thread(s)")
-end
-
-# Add plot labels and title.
+CI = LinRange(0, .25, 1000)
+roofline = @. min(peak_performance, CI * peak_bandwidth)
+plot(CI, roofline)
 xlabel!("Computational Intensity (FLOPs/Byte)", fontsize=14)
 ylabel!("Performance (GFLOPS/s)", fontsize=14)
 title!("Roofline Model for 1, 2, and 8 Threads", fontsize=16)
 
+CI_add_vec = 2 / (2 * 8)
+n = [1000000000, 1000000000, 1000000000]
+# We want to generate roofline plots for 1, 2, and 8 threads.
+timings_v1 = [5.94938, 1.72952, 1.16535]# in seconds
+timings_v2 = [2.67886, 1.45018, 0.464915]# in seconds
+num_gflops = 2 * n * 1e-9
+scatter!(CI_add_vec * ones(length(timings_v1)), num_gflops ./ timings_v1, label="AXPY_v1")
+scatter!(CI_add_vec * ones(length(timings_v2)), num_gflops ./ timings_v2, label="AXPY_v2")
+
+
 # Optionally, save the generated plot to a file.
 savefig("./docs/roofline_plot.png")
+
+
+
+# Calculate performance (GFLOPS/s)
+performance_v1 = num_gflops ./ timings_v1
+performance_v2 = num_gflops ./ timings_v2
+
+# Calculate percentage of peak performance
+percentage_v1 = performance_v1 ./ peak_performance .* 100
+percentage_v2 = performance_v2 ./ peak_performance .* 100
+
+# Create a DataFrame for clarity (using DataFrames.jl)
+using DataFrames
+
+performance_df = DataFrame(
+    Threads = [1, 2, 8],
+    Performance_v1_GFLOPS_s = performance_v1,
+    Percentage_v1 = percentage_v1,
+    Performance_v2_GFLOPS_s = performance_v2,
+    Percentage_v2 = percentage_v2
+)
+
+println(performance_df)

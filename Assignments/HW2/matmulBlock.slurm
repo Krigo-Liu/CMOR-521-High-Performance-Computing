@@ -12,5 +12,6 @@ echo "My job ran on:"
 echo $SLURM_NODELIST
 echo "The current job is: Cach Block Matrix Multiplication"
 cd /home/yl336/cmor521/Assignment2 || exit
+srun ./main_compare_matmul_block
 srun --ntasks=1 ./main_matmul_block strong
 srun --ntasks=1 ./main_matmul_block weak

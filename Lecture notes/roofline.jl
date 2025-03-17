@@ -1,7 +1,7 @@
 # calculates a roofline plot for axpy on an Intel(R) Xeon(R) Gold 6230 CPU @ 2.10GHz
 
 # peak performance in GFLOPS/sec
-num_cores = 20
+num_cores = 16
 peak_performance = 352 / num_cores # GFLOPS/sec
 
 # peak BW should be between 131.13 and 140 GB/second
@@ -21,10 +21,12 @@ plot(CI, roofline)
 xlabel!("Computational intensity (CI)", fontsize=14)
 ylabel!("GFLOPS / second", fontsize=14)
 
-CI_add_vec = 2 / 3
-n = [8_000, 8_000, 16_000, 16_000]
-timings = [2218, 1523] * 1e-9 # in seconds
-
+CI_add_vec = 2 / (2 * 8)
+n = [1000000000, 1000000000]
+timings = [2218, 4419] * 1e-9 # in seconds
+timings_blas = [1523,  2836] * 1e-9 # in seconds
 num_gflops = 2 * n * 1e-9
-scatter!(CI_add_vec * ones(length(timings)), num_gflops ./ timings)
+scatter!(CI_add_vec * ones(length(timings)), num_gflops ./ timings, label="addvec")
+scatter!(CI_add_vec * ones(length(timings)), num_gflops ./ timings_blas, label="BLAS")
+
 # APP_peak_performance = .1056 * 1000 / .3 # .3 = weighting factor for non-vector process

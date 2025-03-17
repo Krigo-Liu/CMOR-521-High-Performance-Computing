@@ -1,7 +1,7 @@
 #include "./include/recursive_matmul.hpp"
 
-int STRONG_MATRIX_SIZE = 4098; 
-int WEAK_BASE_MATRIX_SIZE = 512;
+int STRONG_MATRIX_SIZE = 2048; 
+int WEAK_BASE_MATRIX_SIZE = 128;
 int MIN_RECURSIVE_SIZE = 32;
 
 int main(int argc, char* argv[]) {

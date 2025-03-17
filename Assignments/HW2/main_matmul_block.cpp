@@ -1,9 +1,8 @@
 #include "./include/cache_block_matmul.hpp"
 
 
-
 int STRONG_N    = 2048;  // Fixed matrix dimension for strong scaling
-int WEAK_BASE_N = 512;   // Base matrix dimension for 1 thread in weak scaling
+int WEAK_BASE_N = 128;   // Base matrix dimension for 1 thread in weak scaling
 int BLOCK_SIZE  = 32;    // Block size for cache blocking
 
 int main(int argc, char* argv[]) {

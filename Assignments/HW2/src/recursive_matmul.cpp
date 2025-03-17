@@ -122,7 +122,13 @@ void runStrongScalingExperiment() {
     }
 
     cout << "\nRecursive MatMul Results (Strong Scaling):\n";
-    cout << "Version, Threads, Matrix Size, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Matrix Size"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl; 
     cout << fixed << setprecision(5);
     for (const auto &res : results) {
         cout << left
@@ -151,8 +157,9 @@ void runWeakScalingExperiment() {
         omp_set_num_threads(numThreads);
 
         // Scale the matrix size: total work ∝ n^3 should increase by the factor of numThreads.
-        int candidateSize = static_cast<int>(ceil(WEAK_BASE_MATRIX_SIZE * cbrt(static_cast<double>(numThreads))));
-        int n = nextPowerOfTwo(candidateSize);
+        // int candidateSize = static_cast<int>(ceil(WEAK_BASE_MATRIX_SIZE * cbrt(static_cast<double>(numThreads))));
+        // int n = nextPowerOfTwo(candidateSize);
+        int n = static_cast<int>(std::ceil(WEAK_BASE_MATRIX_SIZE * static_cast<double>(numThreads)));
 
 
         double* A = new double[n * n];
@@ -187,7 +194,13 @@ void runWeakScalingExperiment() {
     }
 
     cout << "\nRecursive MatMul Results (Weak Scaling):\n";
-    cout << "Version, Threads, Matrix Size, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Matrix Size"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl; 
     cout << fixed << setprecision(5);
     for (const auto &res : results) {
         cout << left

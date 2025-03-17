@@ -52,6 +52,29 @@ void cache_block_matmul_collapse(double *A, double *B, double *C, int n) {
     }
 }
 
+// Cache-blocked matrix multiplication using omp parallel for collapse(3)
+// to flatten the i- and j- block loops
+void cache_block_matmul_collapse_3(double *A, double *B, double *C, int n) {
+    int i, j, k, ii, jj, kk;
+    #pragma omp parallel for collapse(3) private(i, j, k, ii, jj, kk) schedule(static)
+    for (i = 0; i < n; i += BLOCK_SIZE) {
+        for (j = 0; j < n; j += BLOCK_SIZE) {
+            for (k = 0; k < n; k += BLOCK_SIZE) {
+                for (ii = i; ii < ((i + BLOCK_SIZE) > n ? n : (i + BLOCK_SIZE)); ii++) {
+                    for (jj = j; jj < ((j + BLOCK_SIZE) > n ? n : (j + BLOCK_SIZE)); jj++) {
+                        double sum = 0.0;
+                        for (kk = k; kk < ((k + BLOCK_SIZE) > n ? n : (k + BLOCK_SIZE)); kk++) {
+                            sum += A[ii * n + kk] * B[kk * n + jj];
+                        }
+                        C[ii * n + jj] += sum;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 // Strong scaling experiment: the matrix size is fixed, and we vary the number of threads.
 void run_strong_scaling_experiment() {
     vector<Result> results_std;
@@ -103,34 +126,48 @@ void run_strong_scaling_experiment() {
         double eff_std = (baseline_std / runtime_std) / num_threads;
         double eff_col = (baseline_col / runtime_col) / num_threads;
         
-        results_std.push_back({"MatMul Standard", num_threads, runtime_std, eff_std});
-        results_col.push_back({"MatMul Collapse(2)", num_threads, runtime_col, eff_col});
+        results_std.push_back({"MatMul Standard", num_threads, n, runtime_std, eff_std});
+        results_col.push_back({"MatMul Collapse(2)", num_threads, n, runtime_col, eff_col});
         
         delete[] A;
         delete[] B;
         delete[] C_std;
         delete[] C_col;
     }
-    
+
     // Print results.
     cout << "\nMatMul Standard Results:\n";
-    cout << "Version, Threads, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Matrix"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl;    
     cout << fixed << setprecision(5);
     for (const auto &res : results_std) {
         cout << left
              << setw(20) << res.version 
-             << setw(20) << res.num_threads 
+             << setw(20) << res.numThreads
+             << setw(20) << res.matrixSize
              << setw(20) << res.runtime
              << setw(20) << res.efficiency 
              << endl;
     }
     
     cout << "\nMatMul Collapse(2) Results:\n";
-    cout << "Version, Threads, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Matrix Size"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl; 
     for (const auto &res : results_col) {
         cout << left
              << setw(20) << res.version 
-             << setw(20) << res.num_threads 
+             << setw(20) << res.numThreads
+             << setw(20) << res.matrixSize
              << setw(20) << res.runtime
              << setw(20) << res.efficiency 
              << endl;
@@ -156,6 +193,7 @@ void run_weak_scaling_experiment() {
         omp_set_num_threads(num_threads);
         
         // Compute matrix dimension for weak scaling:
+        // int n = static_cast<int>(WEAK_BASE_N * cbrt(static_cast<double>(numThreads)));
         int n = static_cast<int>(WEAK_BASE_N * static_cast<double>(num_threads));
         // Round up to a multiple of BLOCK_SIZE.
         if (n % BLOCK_SIZE != 0) {
@@ -196,8 +234,8 @@ void run_weak_scaling_experiment() {
         double eff_std = (baseline_std / runtime_std) / num_threads;
         double eff_col = (baseline_col / runtime_col) / num_threads;
         
-        results_std.push_back({"MatMul Standard", num_threads, runtime_std, eff_std});
-        results_col.push_back({"MatMul Collapse(2)", num_threads, runtime_col, eff_col});
+        results_std.push_back({"MatMul Standard", num_threads, n, runtime_std, eff_std});
+        results_col.push_back({"MatMul Collapse(2)", num_threads, n, runtime_col, eff_col});
         
         delete[] A;
         delete[] B;
@@ -207,7 +245,13 @@ void run_weak_scaling_experiment() {
     
     // Print results for the standard version.
     cout << "\nMatMul Standard Results:\n";
-    cout << "Version, Threads, Matrix Dimension, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Matrix Size"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl; 
     cout << fixed << setprecision(5);
     for (int i = 0; i < num_tests; i++) {
         int num_threads = thread_counts[i];
@@ -218,6 +262,7 @@ void run_weak_scaling_experiment() {
         cout << left
              << setw(20) << results_std[i].version 
              << setw(20) << num_threads
+             << setw(20) << results_std[i].matrixSize
              << setw(20) << results_std[i].runtime 
              << setw(20) << results_std[i].efficiency
              << endl;
@@ -226,7 +271,12 @@ void run_weak_scaling_experiment() {
     
     // Print results for the collapse(2) version.
     cout << "\nMatMul Collapse(2) Results:\n";
-    cout << "Version, Threads, Matrix Dimension, Runtime, Efficiency\n";
+    cout << std::left
+         << std::setw(20) << "Version"
+         << std::setw(20) << "Threads"
+         << std::setw(20) << "Runtime"
+         << std::setw(20) << "Efficiency"
+         << std::endl; 
     for (int i = 0; i < num_tests; i++) {
         int num_threads = thread_counts[i];
         int n = static_cast<int>(WEAK_BASE_N * cbrt(static_cast<double>(num_threads)));
@@ -236,6 +286,7 @@ void run_weak_scaling_experiment() {
         cout << left
              << setw(20) << results_col[i].version 
              << setw(20) << num_threads
+             << setw(20) << results_std[i].matrixSize
              << setw(20) << results_col[i].runtime 
              << setw(20) << results_col[i].efficiency
              << endl;
