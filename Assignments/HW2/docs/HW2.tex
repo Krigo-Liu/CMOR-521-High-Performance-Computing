@@ -16,6 +16,9 @@
 \usepackage{array} % For table column formatting
 \usepackage{times} % Uses Times font for the text
 \usepackage{float}
+\usepackage{multirow}
+\usepackage{booktabs}
+
 
 \title{CMOR 421/521 Assignment 2: OpenMP}
 \author{Yuhao Liu}
@@ -53,28 +56,21 @@
 
 \section{Directory Structure}
 Below is my file organization for this assignment. 
-My final zip file follows this structure (driver files in the top-level directory, 
-\texttt{docs/} for LaTeX, \texttt{src/} for source files, and \texttt{include/} for header files):
+My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src/} for source files, and \texttt{include/} for header files):
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\linewidth]{Assignments/HW1/docs/images/structure.png}
+    \includegraphics[width=0.3\linewidth]{Assignments/HW2/docs/images/structure.png}
     \caption{structure}
     \label{fig:structure}
 \end{figure}
 
 \begin{itemize}
-    \item The \verb|main_mutiplication.cpp| and \verb|main_transpose.cpp| are include \verb|main| function for matrix transpose and matrix multiplication in naive method, cache-block method, and recursive method. 
-    \item The \verb|main_mutiplication_col.cpp| is used to test when $A^T$ is stored in column major format, the performance for different methods.
-    \item The \verb|visualize_mutiplixation.jl| and \verb|visualize_transpose.jl| are Julia code for plot the figures.
-    \item The folder \verb|Env_HW1| are the Julia project local environment. You need to use the following command in terminal for execute these files. First,
-    \begin{verbatim}
-        cd ./HW1
-    \end{verbatim}
-    and using \verb|]| to enter the environment space, and then using command \verb|activate Env_HW1| to load the local environment. You can also use \verb|st| to check what library I used.
+    \item The \verb|main_axpy.cpp|, \verb|main_matmul_block.cpp|, \verb|main_matmul_recursive.cpp|, and \verb|main_integral.cpp| are include the \verb|main| functions for the parallelized \verb|AXPY|, \verb|Cache Block Matrix Multiplication|, \verb|Recursive Matrix Multiplication|, and \verb|Integral Pi|
+    \item The \verb|roofline.jl| plot the roofline figure, and calculate the percentage of peak performance.
     \item The folder \texttt{docs/} is to store the Latex file and images.
-    \item The folder \texttt{include/} is the place for \verb|.hpp| files. The \verb|matrix_transpose.hpp| and \verb|matrix_multiplication.hpp| are in there.
-    \item The folder \texttt{src/} is the place for \verb|matrix_transpose.cpp| and \verb|matrix_multiplication.cpp| which are used to implemented all different methods for matrix transpose, matrix multiplication, and the timing analysis functions.
+    \item The folder \texttt{include/} is the place for \verb|.hpp| files. The \verb|axpy_omp.hpp|, \verb|cache_block_matmul.hpp|, \verb|recursive_matmul.hpp|, and \verb|integral.hpp| are in there.
+    \item The folder \texttt{src/} is the place for \verb|axpy_omp.cpp|, \verb|cache_block_matmul.cpp|, \verb|recursive_matmul.cpp|, and \verb|integral.cpp|  which are used to implemented all different methods for matrix transpose, matrix multiplication, and the timing analysis functions.
 
 \end{itemize}
 
@@ -85,173 +81,306 @@ My final zip file follows this structure (driver files in the top-level director
 \begin{itemize}
     \item \textbf{Build Instructions:} 
         \begin{itemize}
-            \item For matrix transpose, you can use
+            \item For all executable file, you can directly using
             \begin{verbatim}
-                make matrix_transpose_02
+                make
             \end{verbatim}
-            and
-            \begin{verbatim}
-                make matrix_transpose_03
-            \end{verbatim}
-            to compile the program with \verb|-O2| or \verb|-O3| optimization flags.
-            \item For matrix multiplication, you can use
-            \begin{verbatim}
-                make matrix_multiplication_02
-            \end{verbatim}
-            and
-            \begin{verbatim}
-                make matrix_multiplication_03
-            \end{verbatim}
-            to compile the program with \verb|-O2| or \verb|-O3| optimization flags.
-            \item For the matrix transpose test when $A^T$ is stored column major, you can use
-            \begin{verbatim}
-                g++ -std=c++17 -O3 main_transpose_col.cpp -o main_transpose_col
-            \end{verbatim}
-            to compile.
+            to build all executable file.
+            
         \end{itemize}
     \item \textbf{Running Instructions:} 
-    
-        Once you build the execution file, it will appear as driver files. You can use the following command to run the code:
+        Once you build the execution file, it will appear as driver files. You can use the following command to run the code in notsx:
         \begin{verbatim}
-            ./matrix_transpose_02
-            ./matrix_transpose_03
-            ./matrix_multiplication_02
-            ./matrix_multiplication_03
-            ./main_transpose_col
+            sbatch axpy.slurm
+            sbatch matmulBlock.slurm
+            sbatch matmulRecursive.slurm
+            sbatch integral.slurm
         \end{verbatim}
     \item  \textbf{Execution: }
-        When you execute the program, in the terminal you can see the output like the following figure:
+        When you execute the program, in the terminal you can see the output file in the drive folder:
         \begin{figure}[H]
             \centering
-            \includegraphics[width=0.5\linewidth]{Assignments//HW1//docs//images/method_accuracy.png}
-            \caption{Method accuracy}
-            \label{fig:Method accuracy}
+            \includegraphics[width=0.5\linewidth]{Assignments/HW2/docs/images/output_files.png}
+            \caption{Output files}
+            \label{fig:Output files}
         \end{figure}
-        This will check that the relative error for each matrix transpose implementation is zero up to machine precision.
+        These output file will storage the output for each task.
 
-        After you run one of above command, you will see there are two new folders \texttt{obj/} and \texttt{result/}. The first on is the place for \verb|.o| file and the second one is the results in three different \verb|.csv| files, \verb|naive_results.csv|, \verb|block_results.csv|, and \verb|recursive_results.csv|.
-
-        If you want to clean all of them, using
+        If you want to clean all executable files, using
         \begin{verbatim}
             make clean
         \end{verbatim}
-        and this command will clean folder \texttt{obj/} and \texttt{result/}.
 \end{itemize}
 
-\newpage
 
 \section{Analysis}
-In this section, I will show you the analysis for matrix transpose and matrix multiplication.
+In this section, I will show you the analysis for these results
 
-\subsection{Matrix transpose}
-For analysis the efficiency among naive matrix transpose, cache-block matrix transpose, and recursive matrix transpose, you mainly use the file \verb|main_transpose.cpp|, \verb|matrix_transpose.cpp| in folder \texttt{src/}, and \verb|matrix_transpose.hpp| in folder \texttt{include/}.
+\subsection{AXPY}
+For the \verb|AXPY| method in \verb|version_1| and \verb|version_2|, from the following table:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{AXPY Version} & \textbf{Threads} & \textbf{Runtime} & \textbf{Efficiency} \\ \hline
+\multirow{5}{*}{Version 1} 
+& 1  & 5.94938  & 1        \\ \cline{2-4}
+& 2  & 1.72952  & 1.71995  \\ \cline{2-4}
+& 4  & 1.26784  & 1.17313  \\ \cline{2-4}
+& 8  & 1.16535  & 0.638155 \\ \cline{2-4}
+& 16 & 1.84623  & 0.201403 \\ \hline
+\multirow{5}{*}{Version 2} 
+& 1  & 2.67886  & 1        \\ \cline{2-4}
+& 2  & 1.45018  & 0.92363  \\ \cline{2-4}
+& 4  & 0.746254 & 0.897436 \\ \cline{2-4}
+& 8  & 0.464915 & 0.720256 \\ \cline{2-4}
+& 16 & 0.432303 & 0.387295 \\ \hline
+\end{tabular}
+\caption{Runtime and Efficiency of AXPY Versions}
+\label{tab:AXPY}
+\end{table}
+We can find that for \verb|version_1|, after we increased the number of threads, the runtime without keeping decreasing instead of increasing, like \verb|Threads = 16|. The efficiency increased at first and then decreased. On the other hands, we can see that the \verb|version_2| is more general since it's runtime keeping decreased and the efficiency reduced normally. 
 
-All my tests used the following setting:
+\subsubsection{Strong and Weak scaling}
+In this part, I will perform strong and weak scaling studies for up to 16 threads. The reults table is as following:
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Scaling Experiment} & \textbf{AXPY Version} & \textbf{Threads} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\multirow{10}{*}{Strong Scaling} 
+& \multirow{5}{*}{Version 1} 
+& 1  & 5.68555  & 1.000000 \\ \cline{3-5}
+& & 2  & 2.45827  & 1.156410 \\ \cline{3-5}
+& & 4  & 1.88886  & 0.752513 \\ \cline{3-5}
+& & 8  & 2.24959  & 0.315922 \\ \cline{3-5}
+& & 16 & 1.68469  & 0.210928 \\ \cline{2-5}
 
-\begin{lstlisting}[style=C++Style]
-    int BLOCK_SIZE = 16;  
-    int threshold = 16; 
-    vector<int> sizes = {32, 64, 128, 256, 512, 1024, 2048};
-    vector<int> block_sizes = {8, 16, 32, 64, 128};
-    vector<int> thresholds = {8, 16, 32, 64, 128};
-\end{lstlisting}
-\begin{itemize}
-    \item You can change \verb|size| for different matrix.
-    \item You can change \verb|BLOCK_SIZE| for different block size used in cache-block matrix transpose method.
-    \item You can change \verb|threshold|, for terminating that the matrix is smaller than these threshold sizes. 
-\end{itemize}
+& \multirow{5}{*}{Version 2} 
+& 1  & 3.13006  & 1.000000 \\ \cline{3-5}
+& & 2  & 1.55607  & 1.005760 \\ \cline{3-5}
+& & 4  & 0.849503 & 0.921146 \\ \cline{3-5}
+& & 8  & 0.509333 & 0.768178 \\ \cline{3-5}
+& & 16 & 0.305709 & 0.639919 \\ \hline
 
-The following pictures are with \verb|-O2| and \verb|-O3| optimization flags.
+\multirow{10}{*}{Weak Scaling} 
+& \multirow{5}{*}{Version 1} 
+& 1  & 0.360786 & 1.000000 \\ \cline{3-5}
+& & 2  & 0.813838 & 0.443314 \\ \cline{3-5}
+& & 4  & 2.11619  & 0.170489 \\ \cline{3-5}
+& & 8  & 6.72802  & 0.053624 \\ \cline{3-5}
+& & 16 & 21.7201  & 0.016611 \\ \cline{2-5}
+
+& \multirow{5}{*}{Version 2} 
+& 1  & 0.190484 & 1.000000 \\ \cline{3-5}
+& & 2  & 0.241768 & 0.787878 \\ \cline{3-5}
+& & 4  & 0.246050 & 0.774168 \\ \cline{3-5}
+& & 8  & 0.294072 & 0.647746 \\ \cline{3-5}
+& & 16 & 0.406239 & 0.468897 \\ \hline
+\end{tabular}}
+\caption{Strong and Weak Scaling Results for AXPY Operation}
+\label{tab:axpy_scaling}
+\end{table}
+
+\subsubsection{Roofline Model(CMOR 521)}
+The figure of Roofline is:
 \begin{figure}[H]
-    \centering
-    \includesvg[width=0.8\linewidth]{images/matrix_transpose_all_02.svg}
-    \caption{Matrix Transpose (-O2)}
-    \label{fig2:Matrix Transpose (-O2)}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includesvg[width=0.8\linewidth]{images/matrix_transpose_all_03.svg}
-    \caption{Matrix Transpose (-O3)}
-    \label{fig3:Matrix Transpose (-O3)}
-\end{figure}
-
-According to these figures, we could find that when matrix size become larger and larger, the recursive method gets the best performance. For the cache-blocked method with $2048 \times 2048$ matrix, the recursive threshold size with $16$ get the best performance. 
-
-
-For the cache-block method, we can see it is faster than naive version but slower than recursive when matrix is large enough. When the block size is $8$, this method have the best performace.
+        \centering
+        \includegraphics[width=0.75\linewidth]{Assignments/HW2/docs/images/roofline_plot.png}
+        \caption{Roofline Model}
+        \label{fig:Roofline Model}
+    \end{figure}
+The percentage of peak performance do you achieve for each case are as following:
+\begin{table}[H]
+\centering
+\begin{tabular}{ccc}
+\toprule
+\textbf{Threads} & \textbf{AXPY Version} & \textbf{Performance (\% of Peak)} \\
+\midrule
+1 & v1 & 1.53\% \\
+2 & v1 & 5.26\% \\
+8 & v1 & 7.80\% \\
+1 & v2 & 3.39\% \\
+2 & v2 & 6.27\% \\
+8 & v2 & 19.55\% \\
+\bottomrule
+\end{tabular}
+\caption{Achieved performance compared to theoretical peak performance}
+\label{tab:performance}
+\end{table}
 
 \newpage
 
-\subsubsection{Analysis for slow memory used for naive matrix transposition}
-For an $N \times N$ matrix, the naive transpose algorithm reads each of the $N^2$ elements. The naive method is:
-\begin{lstlisting}[style=C++Style]
-// ------------------------------------------------
-// Naive Transposition
-// ------------------------------------------------
-void transpose_naive(const int n, double * AT, double * A) {
-    for (int i = 0; i < n; ++i){
-        for (int j = 0; j < n; ++j){
-            AT[j * n + i] = A[i * n + j]; 
-        }
+\subsection{Matrix Multiplication (Cache Block)}
+
+\subsubsection{Compare "\#omp parallel for" with "\#omp parallel for collapse(...)"}
+In this part, firstly, we need to compare the "\#omp parallel for" with "\#omp parallel for collapse(...)" and determined the optimal collapse parameter. Since the cache block matrix method can only stand for 2 or 3 collapse parameter, and the result for these three different parallelization way in the following table:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Version} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime} & \textbf{Efficiency} \\ \hline
+\multirow{5}{*}{MatMul Standard} 
+& 1  & \multirow{5}{*}{2048} & 27.06997 & 1.00000 \\ \cline{2-2} \cline{4-5}
+& 2  & & 13.48462 & 1.00373 \\ \cline{2-2} \cline{4-5}
+& 4  & & 6.76744  & 1.00001 \\ \cline{2-2} \cline{4-5}
+& 8  & & 3.89171  & 0.86947 \\ \cline{2-2} \cline{4-5}
+& 16 & & 4.00292  & 0.42266 \\ \hline
+\multirow{5}{*}{MatMul Collapse(2)} 
+& 1  & \multirow{5}{*}{2048} & 28.53727 & 1.00000 \\ \cline{2-2} \cline{4-5}
+& 2  & & 13.47711 & 1.05873 \\ \cline{2-2} \cline{4-5}
+& 4  & & 6.76001  & 1.05537 \\ \cline{2-2} \cline{4-5}
+& 8  & & 3.91194  & 0.91186 \\ \cline{2-2} \cline{4-5}
+& 16 & & 4.01510  & 0.44422 \\ \hline
+\multirow{5}{*}{MatMul Collapse(3)} 
+& 1  & \multirow{5}{*}{2048} & 27.69317 & 1.00000 \\ \cline{2-2} \cline{4-5}
+& 2  & & 13.52404 & 1.02385 \\ \cline{2-2} \cline{4-5}
+& 4  & & 6.78140  & 1.02092 \\ \cline{2-2} \cline{4-5}
+& 8  & & 3.86833  & 0.89487 \\ \cline{2-2} \cline{4-5}
+& 16 & & 3.78207  & 0.45764 \\ \hline
+\end{tabular}
+\caption{Strong Scaling Experiment (Matrix Size = 2048 $\times$ 2048)}
+\label{tab:matmul_scaling}
+\end{table}
+
+Based on the results, collapse(3) appears to be the optimal variant. Since all three variants have similar runtimes with one thread (Standard: 27.07s, collapse(2): 28.54s, collapse(3): 27.69s), so the difference isn’t significant when parallelism isn’t leveraged. At 2 and 4 threads, all versions achieve nearly identical performance, with efficiencies around or slightly above 1 (even a bit over 1 can happen because of improved cache reuse or other micro-architectural effects). As the thread count increases, the differences become clearer:
+\begin{itemize}
+    \item With 8 threads, Collapse(3) shows the lowest runtime (3.86833s) compared to Standard (3.89171s) and Collapse(2) (3.91194s).
+    \item At 16 threads, Collapse(3) delivers a runtime of 3.78207s and an efficiency of 0.45764, which is noticeably better than Standard (4.00292s, 0.42266 efficiency) and Collapse(2) (4.01510s, 0.44422 efficiency).
+\end{itemize}
+
+Therefore collapsing three loops provides a larger iteration space.
+
+\newpage
+\subsubsection{Strong and Weak scaling}
+In this part, I will perform strong and weak scaling studies for up to 16 threads. The reults table is as following:
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Experiment} & \textbf{Version} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\multirow{10}{*}{Strong Scaling} 
+& \multirow{5}{*}{MatMul Standard} 
+& 1 & 2048 & 27.10687 & 1.00000 \\ \cline{3-6}
+& & 2 & 2048 & 13.54723 & 1.00046 \\ \cline{3-6}
+& & 4 & 2048 & 6.76382 & 1.00191 \\ \cline{3-6}
+& & 8 & 2048 & 3.83429 & 0.88370 \\ \cline{3-6}
+& & 16 & 2048 & 3.85602 & 0.43936 \\ \cline{2-6}
+
+& \multirow{5}{*}{MatMul Collapse(2)} 
+& 1 & 2048 & 28.20344 & 1.00000 \\ \cline{3-6}
+& & 2 & 2048 & 14.06791 & 1.00240 \\ \cline{3-6}
+& & 4 & 2048 & 7.03822 & 1.00180 \\ \cline{3-6}
+& & 8 & 2048 & 4.14558 & 0.85041 \\ \cline{3-6}
+& & 16 & 2048 & 4.28617 & 0.41126 \\ \hline
+
+\multirow{10}{*}{Weak Scaling} 
+& \multirow{5}{*}{MatMul Standard} 
+& 1 & 128 & 0.00623 & 1.00000 \\ \cline{3-6}
+& & 2 & 256 & 0.02621 & 0.11878 \\ \cline{3-6}
+& & 4 & 512 & 0.10443 & 0.01490 \\ \cline{3-6}
+& & 8 & 1024 & 0.44713 & 0.00174 \\ \cline{3-6}
+& & 16 & 2048 & 3.84999 & 0.00010 \\ \cline{2-6}
+
+& \multirow{5}{*}{MatMul Collapse(2)} 
+& 1 & 128 & 0.00677 & 1.00000 \\ \cline{3-6}
+& & 2 & 256 & 0.02709 & 0.12497 \\ \cline{3-6}
+& & 4 & 512 & 0.10847 & 0.01560 \\ \cline{3-6}
+& & 8 & 1024 & 0.50719 & 0.00167 \\ \cline{3-6}
+& & 16 & 2048 & 4.29759 & 0.00010 \\ \hline
+\end{tabular}}
+\caption{Strong and Weak Scaling Experiments for Matrix Multiplication}
+\label{tab:matmul_scaling}
+\end{table}
+
+
+\subsection{Recursive Matrix Multiplication}
+
+In this part, I will perform strong and weak scaling studies for up to 16 threads. The reults table is as following:
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Scaling Experiment} & \textbf{Threads} & \textbf{Matrix Size} & \textbf{Runtime (s)} & \textbf{Efficiency} \\ \hline
+\multirow{5}{*}{Strong Scaling} 
+& 1 & 2048 & 24.50431 & 1.00000 \\ \cline{2-5}
+& 2 & 2048 & 12.29185 & 0.99677 \\ \cline{2-5}
+& 4 & 2048 & 6.47467  & 0.94616 \\ \cline{2-5}
+& 8 & 2048 & 3.93354  & 0.77870 \\ \cline{2-5}
+& 16 & 2048 & 3.63948 & 0.42081 \\ \hline
+
+\multirow{5}{*}{Weak Scaling} 
+& 1 & 128  & 0.00589  & 1.00000 \\ \cline{2-5}
+& 2 & 256  & 0.02456  & 0.23989 \\ \cline{2-5}
+& 4 & 512  & 0.10145  & 0.05806 \\ \cline{2-5}
+& 8 & 1024 & 0.48898  & 0.01205 \\ \cline{2-5}
+& 16 & 2048 & 3.64802 & 0.00161 \\ \hline
+\end{tabular}}
+\caption{Recursive Matrix Multiplication: Strong and Weak Scaling Results}
+\label{tab:recursive_matmul_scaling}
+\end{table}
+
+
+\subsection{(For CMOR 521)  Integral Pi}
+In this part, I re-implement the integration code used in class using atomic operations and compared the performance of atomic operations to the reduction-based implementation by performing a strong scaling study for each implementation.
+
+This part is the integration code used in class using atomic operations
+\begin{verbatim}
+// Function that computes pi using atomic updates
+double integral_atomic(int num_steps) {
+    double step = 1.0 / num_steps;
+    double sum = 0.0;
+    #pragma omp parallel for
+    for (int i = 0; i < num_steps; i++) {
+        double x = (i + 0.5) * step;
+        double temp = 4.0 / (1.0 + x * x);
+        #pragma omp atomic
+        sum += temp;
     }
+    return step * sum;
 }
-\end{lstlisting}
-\begin{itemize}
-    \item Read \verb|A[i][j]| from slow memory, which need $N^2$ reads
-    \item Write \verb|B[j][i]| to slow memory, which need $N^2$ writes
-\end{itemize}
-Then, the total means $2N^2$ slow memory accesses in the naive algorithm.
+\end{verbatim}
 
-\subsubsection{$A^T$ store in column major}
-Since, we know that for $2048 \times 2048$ matrix, cache-block method reach the best performance at $8$ block size and recursive method reach the best performance at $16$ threshold size. So If $A^T$ stored in column major, my test is under these situation, and the result is as following:
-\begin{lstlisting}[style=C++Style]
-Naive transpose time: 0.191186 s
-Max Relative Error: 0
-Transpose implementation is accurate within machine precision.
-Blocked transpose time: 0.018329 s
-Max Relative Error: 0
-Transpose implementation is accurate within machine precision.
-Recursive transpose time: 0.018035 s
-\end{lstlisting}
-The recursive transpose still hold the best performance even the cache-block method has very closed time.
+This part is the integration code with the reduction-based implementation
+\begin{verbatim}
+// Function that computes pi using the reduction clause
+double integral_reduction(int num_steps) {
+    double step = 1.0 / num_steps;
+    double sum = 0.0;
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < num_steps; i++) {
+        double x = (i + 0.5) * step;
+        sum += 4.0 / (1.0 + x * x);
+    }
+    return step * sum;
+}
+\end{verbatim}
 
-\newpage
+The strong scaling result table is as following:
 
-\subsection{(For CMOR 521)  Matrix-Matrix Multiplication}
-For analysis the efficiency among naive matrix transpose, cache-block matrix transpose, and recursive matrix transpose, you mainly use the file \verb|main_multiplication.cpp|, \verb|matrix_multiplication.cpp| in folder \texttt{src/}, and \verb|matrix_multiplication.hpp| in folder \texttt{include/}.
-
-All my tests used the following setting:
-
-\begin{lstlisting}[style=C++Style]
-    int BLOCK_SIZE = 16;  
-    int threshold = 16; 
-    vector<int> sizes = {32, 64, 128, 256, 512, 1024, 2048};
-    vector<int> block_sizes = {8, 16, 32, 64, 128};
-    vector<int> thresholds = {8, 16, 32, 64, 128};
-\end{lstlisting}
-\begin{itemize}
-    \item You can change \verb|size| for different matrix.
-    \item You can change \verb|BLOCK_SIZE| for different block size used in cache-block matrix-matrix multiplication method.
-    \item You can change \verb|threshold|, for terminating that the matrix is smaller than these threshold sizes. 
-\end{itemize}
-
-The following pictures are with \verb|-O2| and \verb|-O3| optimization flags.
-\begin{figure}[H]
-    \centering
-    \includesvg[width=0.8\linewidth]{images/matrix_multiplication_all_02.svg}
-    \caption{Matrix multiplication (-O2)}
-    \label{fig5:Matrix multiplication (-O2)}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includesvg[width=0.8\linewidth]{images/matrix_multiplication_all_03.svg}
-    \caption{Matrix multiplication (-O3)}
-    \label{fig6:Matrix multiplication (-O3)}
-\end{figure}
-
-According to these figures, we could find that when matrix size become larger and larger, the recursive method gets the best performance. For the cache-blocked method with $2048 \times 2048$ matrix, both of the recursive method with $16$threshold size and cache-block method with $16$ block size get the best performance. The time for the are really closed. Both cache-block method and recursive method are better than naive method.
-
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Implementation} & \textbf{Threads} & \textbf{Time (s)} & \textbf{Speedup} & \textbf{Efficiency} & \textbf{Pi} \\ \hline
+\multirow{5}{*}{Atomic}
+& 1 & 0.964693 & 1.000000 & 1.000000 & 3.141593 \\ \cline{2-6}
+& 2 & 5.435353 & 0.177485 & 0.088742 & 3.141593 \\ \cline{2-6}
+& 4 & 6.622583 & 0.145667 & 0.036417 & 3.141593 \\ \cline{2-6}
+& 8 & 6.744995 & 0.143024 & 0.017878 & 3.141593 \\ \cline{2-6}
+& 16 & 5.788789 & 0.166649 & 0.010416 & 3.141593 \\ \hline
+\multirow{5}{*}{Reduction}
+& 1 & 0.235411 & 1.000000 & 1.000000 & 3.141593 \\ \cline{2-6}
+& 2 & 0.123600 & 1.904615 & 0.952307 & 3.141593 \\ \cline{2-6}
+& 4 & 0.063234 & 3.722870 & 0.930718 & 3.141593 \\ \cline{2-6}
+& 8 & 0.033579 & 7.010662 & 0.876333 & 3.141593 \\ \cline{2-6}
+& 16 & 0.032575 & 7.226819 & 0.451676 & 3.141593 \\ \hline
+\end{tabular}
+\caption{Strong Scaling Study for PI Integration (num\_steps = 100,000,000)}
+\label{tab:pi_scaling}
+\end{table}
 
 \end{document}
