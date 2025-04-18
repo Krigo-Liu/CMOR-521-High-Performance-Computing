@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         delete[] A;
         delete[] B;
         delete[] C;
-        delete[] C_excepted;
+        delete[] C_expected;
 
         delete[] A_block;
         delete[] B_block;
