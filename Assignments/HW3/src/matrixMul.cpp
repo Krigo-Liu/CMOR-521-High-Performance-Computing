@@ -1,10 +1,5 @@
 #include "../include/matrixMul.hpp"
 
-// Check and generate matrics with the given parameters
-void generateMatrices(const int M, const int N, const int P, const int k){
-
-}
-
 // Naive matrix multiplication: C = A * B (A: MxN, B: NxP, C: MxP)
 void serialMatMult(const int N, double* C, const double* A, const double* B){
     for (int i = 0; i < N; i++){
