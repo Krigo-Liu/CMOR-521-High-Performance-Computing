@@ -101,6 +101,12 @@ int main(int argc, char *argv[])
     // q = sqrt(size)
     double *A_panel = new double[blockSize * k];
     double *B_panel = new double[k * blockSize];
+
+    // Sychronization and start to record time
+    MPI_Barrier(MPI_COMM_WORLD);
+    double start_time = MPI_Wtime();
+
+
     for (int t = 0; t < q; ++t){
         for (int u = 0; u < microSteps; ++u) {
             // Pack A_panel on row-roots
@@ -141,6 +147,13 @@ int main(int argc, char *argv[])
         }
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    double end_time = MPI_Wtime();
+    if (rank == 0) {
+        std::cout << "Time for SUMMA matrix multiplication: " << (end_time - start_time) << " seconds" << std::endl;
+    }
+
+    // Gather C blocks back to root
     double *C_packer = new double[size * blockElems];
     MPI_Gather(
         C_block, blockElems, MPI_DOUBLE,
@@ -158,8 +171,12 @@ int main(int argc, char *argv[])
             }
         }
 
+        double serial_start_time = MPI_Wtime();
         // Compute serial
         serialMatMult(N, C_expected, A, B);
+        double serial_end_time = MPI_Wtime();
+        std::cout << "Time for serial matrix multiplication: " 
+        << (serial_end_time - serial_start_time) << " seconds\n";
 
         // Compare
         testMul(N, C_expected, C);
