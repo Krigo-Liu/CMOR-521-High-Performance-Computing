@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     MPI_Barrier(MPI_COMM_WORLD);
     double end_time = MPI_Wtime();
     if (rank == 0) {
-        std::cout << "Time for SUMMA matrix multiplication: " << (end_time - start_time) << " seconds" << std::endl;
+        std::cout << "Time for SUMMA matrix multiplication: " << (end_time - start_time) << " seconds. " << "Matrix size: " << N << std::endl;
     }
 
     // Gather C blocks back to root
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
         serialMatMult(N, C_expected, A, B);
         double serial_end_time = MPI_Wtime();
         std::cout << "Time for serial matrix multiplication: " 
-        << (serial_end_time - serial_start_time) << " seconds\n";
+        << (serial_end_time - serial_start_time) << " seconds. " << "Matrix size: " << N << std::endl;
 
         // Compare
         testMul(N, C_expected, C);
