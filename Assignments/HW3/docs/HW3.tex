@@ -60,23 +60,19 @@ My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\linewidth]{Assignments/HW3/docs/images/structure.png}
+    \includegraphics[width=0.5\linewidth]{Assignments/HW3/docs/images/structure.png}
     \caption{structure}
     \label{fig:structure}
 \end{figure}
 
 \begin{itemize}
     \item The \verb|include| folder and \verb|src| folder have \verb|matrixMul.hpp| and \verb|matrixMul.cpp|. In \verb|matrixMul.cpp|, there are 2 help function 
-        \begin{itemize}
-            \item \begin{verbatim}
-                void testMul(const int N, double* serialC, double* mpiC);
-            \end{verbatim}
-                This function help to test that the result from both algorithms are equal to the matrix computed by serial matrix multiplication.
-            \item \begin{verbatim}
-                void serialMatMult(const int N, double* C, const double* A, const double* B);
-            \end{verbatim}
-                This function is used to compute the matrix in serial version.
-        \end{itemize}
+    \begin{itemize}
+        \item \texttt{void testMul(const int N, double* serialC, double* mpiC);}  
+    
+        \item \texttt{void serialMatMult(const int N, double* C, const double* A, const double* B);}  
+    \end{itemize}
+
     \item The \verb|main_CANNON.cpp| and \verb|main_SUMMA.cpp| contain the Cannon's algorithm and SUMMA algorithm respectively.
     \item The \verb|cannon_mpi| and \verb|summa_mpi| are executable files. Both of them already complied by \verb|-O3| optimization flag.
     \item The \verb|cannon.slurm| and \verb|summa.slurm| are sbatch scripts.
@@ -93,40 +89,105 @@ My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src
                 sbatch summa.slurm
                 sbatch cannon.slurm
             \end{verbatim}
-            to run these 2 different algorithm with $2 \times 2$, $3 \times 3$, $4 \times 4$ grids with $N = 512, 768, 1024$ and $k = 64$. All these parameters can be found in \verb|*.slurm| file
+            to run these 2 different algorithm with $2 \times 2$, $3 \times 3$, $4 \times 4$ grids with $N = 512, 768, 1024$ and $k = 64$. All configuration parameters are defined in the \verb|*.slurm| job submission script. The following example illustrates the contents of \verb|summa.slurm| used for executing the SUMMA algorithm:
+
+\begin{verbatim}
+#!/bin/bash
+#SBATCH --job-name=SUMMA
+#SBATCH --account=commons
+#SBATCH --partition=commons
+#SBATCH --ntasks=16             # Total number of MPI processes
+#SBATCH --cpus-per-task=1       # One CPU core per MPI process
+#SBATCH --mem-per-cpu=16000     # Memory per core (in MB)
+#SBATCH --time=00:30:00         # Walltime limit
+#SBATCH --mail-user=yl336@rice.edu
+#SBATCH --mail-type=END,FAIL
+
+echo "Job running on nodes: $SLURM_NODELIST"
+echo "================================================="
+
+# Change to working directory
+cd /home/yl336/cmor521/CMOR-521-High-Performance-Computing/Assignments/HW3 || exit
+
+# Load compiler and MPI module
+module load GCC/13.2.0
+module load OpenMPI/4.1.6
+
+# Compile the SUMMA program
+mpic++ -O3 -o summa_mpi main_SUMMA.cpp ./src/matrixMul.cpp
+
+# Execute the program on different processor grids
+echo "=== Running SUMMA on 4 procs (2×2 grid) ==="
+mpirun -n 4  ./summa_mpi 512 64
+
+echo "=== Running SUMMA on 9 procs (3×3 grid) ==="
+mpirun -n 9  ./summa_mpi 768 64
+
+echo "=== Running SUMMA on 16 procs (4×4 grid) ==="
+mpirun -n 16 ./summa_mpi 1024 64
+
+echo "All runs complete."
+\end{verbatim}
+
         \end{itemize}
-    \item \textbf{The results}
-        \begin{itemize}
-            \item SUMMA algorithm:
-            \begin{verbatim}
-        Job running on nodes: bb2u12c1,bb2u14c1
-        =================================================
-        === Running SUMMA on 4 procs (2×2 grid) ===
-        Total error = 1.54811e-08
-        SUMMA multiplication is CORRECT.
-        === Running SUMMA on 9 procs (3×3 grid) ===
-        Total error = 7.07518e-08
-        SUMMA multiplication is CORRECT.
-        === Running SUMMA on 16 procs (4×4 grid) ===
-        Total error = 1.72552e-07
-        SUMMA multiplication is CORRECT.
-        All runs complete.
-            \end{verbatim}
-            \item Cannon's algorithm:
-            \begin{verbatim}
-        Job running on nodes: bb2u12c1,bb2u14c1
-        =================================================
-        === Running CANNON on 4 procs (2×2 grid) ===
-        Total error = 1.1352e-08
-        SUMMA multiplication is CORRECT.
-        === Running CANNON on 9 procs (3×3 grid) ===
-        Total error = 6.90912e-08
-        SUMMA multiplication is CORRECT.
-        === Running CANNON on 16 procs (4×4 grid) ===
-        Total error = 1.62022e-07
-        SUMMA multiplication is CORRECT.
-        All runs complete.
-            \end{verbatim}
-        \end{itemize}
+\item \textbf{Results:}
+\begin{itemize}
+    \item \textbf{SUMMA Algorithm}
+    \begin{itemize}
+        \item \textbf{4 processes (2×2 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 512
+                  \item SUMMA time: \texttt{0.0419424} seconds
+                  \item Serial time: \texttt{0.337914} seconds
+                  \item Total error: \texttt{1.55078e-08}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+        \item \textbf{9 processes (3×3 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 768
+                  \item SUMMA time: \texttt{0.084537} seconds
+                  \item Serial time: \texttt{0.861577} seconds
+                  \item Total error: \texttt{7.07854e-08}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+        \item \textbf{16 processes (4×4 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 1024
+                  \item SUMMA time: \texttt{0.0979639} seconds
+                  \item Serial time: \texttt{7.28481} seconds
+                  \item Total error: \texttt{1.72492e-07}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Cannon's Algorithm}
+    \begin{itemize}
+        \item \textbf{4 processes (2×2 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 512
+                  \item Cannon time: \texttt{0.0235929} seconds
+                  \item Serial time: \texttt{0.62207} seconds
+                  \item Total error: \texttt{1.13176e-08}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+        \item \textbf{9 processes (3×3 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 768
+                  \item Cannon time: \texttt{0.0345131} seconds
+                  \item Serial time: \texttt{1.03666} seconds
+                  \item Total error: \texttt{6.90086e-08}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+        \item \textbf{16 processes (4×4 grid)}  
+              \begin{itemize}
+                  \item Matrix size: 1024
+                  \item Cannon time: \texttt{0.039058} seconds
+                  \item Serial time: \texttt{5.11798} seconds
+                  \item Total error: \texttt{1.63165e-07}
+                  \item Status: \texttt{CORRECT}
+              \end{itemize}
+    \end{itemize}
+\end{itemize}
+
 \end{itemize}
 \end{document}
