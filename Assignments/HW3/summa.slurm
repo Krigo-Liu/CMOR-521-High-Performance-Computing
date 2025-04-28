@@ -4,7 +4,7 @@
 #SBATCH --partition=commons
 #SBATCH --ntasks=16               # allocate up to 16 MPI ranks
 #SBATCH --cpus-per-task=1         # one core per rank
-#SBATCH --mem-per-cpu=16000        # 2 GB per rank (adjust as needed)
+#SBATCH --mem-per-cpu=16000        # 16 GB per rank (adjust as needed)
 #SBATCH --time=00:30:00
 #SBATCH --mail-user=yl336@rice.edu
 #SBATCH --mail-type=END,FAIL
