@@ -22,51 +22,31 @@ cd /home/yl336/cmor521/CMOR-521-High-Performance-Computing/Assignments/HW4 || ex
 # Load correct CUDA environment
 module load GCC/12.3.0 CUDA/12.1.1
 
-nvcc -o matmul_v1 matmul_v1.cu
-nvcc -o matmul_v2 matmul_v2.cu
-nvcc -o matmul_v3_32 matmul_v3_32.cu
-nvcc -o matmul_v3_64 matmul_v3_64.cu
+nvcc -o matmul matmul.cu
 
-
-
-echo "=== BLOCKSIZE = 32 ==="
 
 echo "=== Running Matrix Multiplication Version 1 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v1 2048
+nvprof ./matmul 2048 1
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 2048 1
 
 echo "=== Running Matrix Multiplication Version 2 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v2 2048
+nvprof ./matmul 2048 2
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 2048 2
 
 echo "=== Running Matrix Multiplication Version 3 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v3_32 2048
+nvprof ./matmul 2048 3
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 2048 3
 
 echo "=== Running Matrix Multiplication Version 1 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v1 4096
+nvprof ./matmul 4096 1
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 4096 1
 
 echo "=== Running Matrix Multiplication Version 2 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v2 4096
+nvprof ./matmul 4096 2
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 4096 2
 
 echo "=== Running Matrix Multiplication Version 3 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v3_32 4096
-
-echo "=== BLOCKSIZE = 64 ==="
-
-echo "=== Running Matrix Multiplication Version 1 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v1 2048
-
-echo "=== Running Matrix Multiplication Version 2 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v2 2048
-
-echo "=== Running Matrix Multiplication Version 3 (N = 2048) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v3_64 2048
-
-echo "=== Running Matrix Multiplication Version 1 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v1 4096
-
-echo "=== Running Matrix Multiplication Version 2 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v2 4096
-
-echo "=== Running Matrix Multiplication Version 3 (N = 4096) ==="
-nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul_v3_64 4096
+nvprof ./matmul 4096 3
+nvprof --metrics flop_count_sp,dram_read_transactions,dram_write_transactions ./matmul 4096 3
 
 echo "All runs complete."

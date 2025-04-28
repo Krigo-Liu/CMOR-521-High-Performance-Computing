@@ -2,7 +2,7 @@
 #include <math.h>
 #include <cuda_runtime.h>
 
-#define BLOCKSIZE 32
+#define BLOCKSIZE 64
 
 //------------------------------------------------------------
 // v1: naive version (original i=row, j=col)
@@ -16,7 +16,7 @@ __global__ void matmul_v1(int N, const float *A, const float *B, float *C) {
         for (int k = 0; k < N; ++k) {
             val += A[k + i * N] * B[j + k * N];
         }
-        C[j + i * N] = val;  // FIX: use =, not +=
+        C[j + i * N] = val;
     }
 }
 
@@ -32,7 +32,7 @@ __global__ void matmul_v2(int N, const float *A, const float *B, float *C) {
         for (int k = 0; k < N; ++k) {
             val += A[k + i * N] * B[j + k * N];
         }
-        C[j + i * N] = val;  // FIX: use =, not +=
+        C[j + i * N] = val; 
     }
 }
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1) N = atoi(argv[1]);
     if (argc > 2) version = atoi(argv[2]);
 
-    printf("N = %d, using matmul_v%d\n", N, version);
+
 
     float *A = new float[N * N];
     float *B = new float[N * N];
@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
     cudaMemcpy(d_B, B, size, cudaMemcpyHostToDevice);
 
     int numBlocks = (N + BLOCKSIZE - 1) / BLOCKSIZE;
+    printf("N = %d, numBlocks * blockSize = %d, using matmul_v%d\n", N, numBlocks * BLOCKSIZE, version);
     dim3 gridDims(numBlocks, numBlocks);
     dim3 blockDims(BLOCKSIZE, BLOCKSIZE);
 
