@@ -1,0 +1,222 @@
+Job running on nodes: /bin/bash
+=================================================
+Lmod Warning:
+-------------------------------------------------------------------------------
+The following dependent module(s) are not currently loaded: FFTW.MPI/3.3.10
+(required by: foss/2023b), GCC/13.2.0 (required by: foss/2023b), OpenMPI/4.1.6
+(required by: foss/2023b), ScaLAPACK/2.2.0-fb (required by: foss/2023b)
+-------------------------------------------------------------------------------
+
+
+
+=== Running Matrix Multiplication Version 1 (N = 2048) ===
+==279446== NVPROF is profiling process 279446, command: ./matmul 2048 1
+N = 2048, numBlocks * blockSize = 2048, using matmul_v1
+Error = 0.000000
+==279446== Profiling application: ./matmul 2048 1
+==279446== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   90.09%  91.047ms         1  91.047ms  91.047ms  91.047ms  matmul_v1(int, float const *, float const *, float*)
+                    6.78%  6.8479ms         2  3.4240ms  3.3933ms  3.4547ms  [CUDA memcpy HtoD]
+                    3.14%  3.1693ms         1  3.1693ms  3.1693ms  3.1693ms  [CUDA memcpy DtoH]
+      API calls:   35.17%  104.26ms         1  104.26ms  104.26ms  104.26ms  cudaLaunchKernel
+                   34.34%  101.79ms         3  33.932ms  3.5451ms  94.568ms  cudaMemcpy
+                   30.36%  89.992ms         3  29.997ms  61.093us  89.852ms  cudaMalloc
+                    0.09%  271.62us         3  90.538us  70.586us  126.85us  cudaFree
+                    0.04%  119.31us       114  1.0460us     127ns  47.342us  cuDeviceGetAttribute
+                    0.00%  8.9300us         1  8.9300us  8.9300us  8.9300us  cuDeviceGetName
+                    0.00%  5.0760us         1  5.0760us  5.0760us  5.0760us  cuDeviceTotalMem
+                    0.00%  4.2190us         1  4.2190us  4.2190us  4.2190us  cuDeviceGetPCIBusId
+                    0.00%  1.0860us         3     362ns     154ns     763ns  cuDeviceGetCount
+                    0.00%     613ns         2     306ns     146ns     467ns  cuDeviceGet
+                    0.00%     413ns         1     413ns     413ns     413ns  cuModuleGetLoadingMode
+                    0.00%     206ns         1     206ns     206ns     206ns  cuDeviceGetUuid
+==279462== NVPROF is profiling process 279462, command: ./matmul 2048 1
+==279462== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 2048, numBlocks * blockSize = 2048, using matmul_v1
+Error = 0.000000
+==279462== Profiling application: ./matmul 2048 1
+==279462== Profiling result:
+==279462== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v1(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.7180e+10  1.7180e+10  1.7180e+10
+          1                    dram_read_transactions               Device Memory Read Transactions    14435309    14435309    14435309
+          1                   dram_write_transactions              Device Memory Write Transactions      781980      781980      781980
+=== Running Matrix Multiplication Version 2 (N = 2048) ===
+==279475== NVPROF is profiling process 279475, command: ./matmul 2048 2
+N = 2048, numBlocks * blockSize = 2048, using matmul_v2
+Error = 0.000000
+==279475== Profiling application: ./matmul 2048 2
+==279475== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   44.72%  8.0439ms         1  8.0439ms  8.0439ms  8.0439ms  matmul_v2(int, float const *, float const *, float*)
+                   37.34%  6.7172ms         2  3.3586ms  3.3486ms  3.3686ms  [CUDA memcpy HtoD]
+                   17.94%  3.2280ms         1  3.2280ms  3.2280ms  3.2280ms  [CUDA memcpy DtoH]
+      API calls:   78.63%  76.299ms         3  25.433ms  61.836us  76.163ms  cudaMalloc
+                   19.28%  18.711ms         3  6.2370ms  3.5221ms  11.623ms  cudaMemcpy
+                    1.65%  1.6029ms         1  1.6029ms  1.6029ms  1.6029ms  cudaLaunchKernel
+                    0.29%  277.18us         3  92.391us  73.214us  127.94us  cudaFree
+                    0.12%  119.56us       114  1.0480us     124ns  46.447us  cuDeviceGetAttribute
+                    0.01%  8.3970us         1  8.3970us  8.3970us  8.3970us  cuDeviceGetName
+                    0.01%  5.1720us         1  5.1720us  5.1720us  5.1720us  cuDeviceTotalMem
+                    0.00%  4.5500us         1  4.5500us  4.5500us  4.5500us  cuDeviceGetPCIBusId
+                    0.00%  1.0730us         3     357ns     159ns     735ns  cuDeviceGetCount
+                    0.00%     652ns         2     326ns     134ns     518ns  cuDeviceGet
+                    0.00%     409ns         1     409ns     409ns     409ns  cuModuleGetLoadingMode
+                    0.00%     192ns         1     192ns     192ns     192ns  cuDeviceGetUuid
+==279490== NVPROF is profiling process 279490, command: ./matmul 2048 2
+==279490== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 2048, numBlocks * blockSize = 2048, using matmul_v2
+Error = 0.000000
+==279490== Profiling application: ./matmul 2048 2
+==279490== Profiling result:
+==279490== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v2(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.7180e+10  1.7180e+10  1.7180e+10
+          1                    dram_read_transactions               Device Memory Read Transactions    15537306    15537306    15537306
+          1                   dram_write_transactions              Device Memory Write Transactions      621946      621946      621946
+=== Running Matrix Multiplication Version 3 (N = 2048) ===
+==279504== NVPROF is profiling process 279504, command: ./matmul 2048 3
+N = 2048, numBlocks * blockSize = 2048, using matmul_v3
+Error = 0.000000
+==279504== Profiling application: ./matmul 2048 3
+==279504== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   46.09%  6.7167ms         2  3.3583ms  3.3499ms  3.3667ms  [CUDA memcpy HtoD]
+                   31.93%  4.6529ms         1  4.6529ms  4.6529ms  4.6529ms  matmul_v3(int, float const *, float const *, float*)
+                   21.98%  3.2023ms         1  3.2023ms  3.2023ms  3.2023ms  [CUDA memcpy DtoH]
+      API calls:   81.51%  76.924ms         3  25.641ms  59.867us  76.798ms  cudaMalloc
+                   16.21%  15.297ms         3  5.0991ms  3.5174ms  8.2036ms  cudaMemcpy
+                    1.84%  1.7397ms         1  1.7397ms  1.7397ms  1.7397ms  cudaLaunchKernel
+                    0.28%  264.61us         3  88.204us  64.998us  130.12us  cudaFree
+                    0.13%  126.39us       114  1.1080us     121ns  50.712us  cuDeviceGetAttribute
+                    0.01%  7.9930us         1  7.9930us  7.9930us  7.9930us  cuDeviceGetName
+                    0.01%  4.8600us         1  4.8600us  4.8600us  4.8600us  cuDeviceTotalMem
+                    0.00%  4.6940us         1  4.6940us  4.6940us  4.6940us  cuDeviceGetPCIBusId
+                    0.00%  1.0780us         3     359ns     151ns     744ns  cuDeviceGetCount
+                    0.00%     582ns         2     291ns     126ns     456ns  cuDeviceGet
+                    0.00%     351ns         1     351ns     351ns     351ns  cuModuleGetLoadingMode
+                    0.00%     185ns         1     185ns     185ns     185ns  cuDeviceGetUuid
+==279519== NVPROF is profiling process 279519, command: ./matmul 2048 3
+==279519== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 2048, numBlocks * blockSize = 2048, using matmul_v3
+Error = 0.000000
+==279519== Profiling application: ./matmul 2048 3
+==279519== Profiling result:
+==279519== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v3(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.7180e+10  1.7180e+10  1.7180e+10
+          1                    dram_read_transactions               Device Memory Read Transactions    15537227    15537227    15537227
+          1                   dram_write_transactions              Device Memory Write Transactions      697135      697135      697135
+=== Running Matrix Multiplication Version 1 (N = 4096) ===
+==279532== NVPROF is profiling process 279532, command: ./matmul 4096 1
+N = 4096, numBlocks * blockSize = 4096, using matmul_v1
+Error = 0.000000
+==279532== Profiling application: ./matmul 4096 1
+==279532== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   93.94%  644.08ms         1  644.08ms  644.08ms  644.08ms  matmul_v1(int, float const *, float const *, float*)
+                    4.09%  28.015ms         2  14.008ms  13.994ms  14.021ms  [CUDA memcpy HtoD]
+                    1.98%  13.561ms         1  13.561ms  13.561ms  13.561ms  [CUDA memcpy DtoH]
+      API calls:   89.58%  686.39ms         3  228.80ms  14.150ms  658.00ms  cudaMemcpy
+                   10.05%  77.039ms         3  25.680ms  66.763us  76.889ms  cudaMalloc
+                    0.30%  2.2645ms         1  2.2645ms  2.2645ms  2.2645ms  cudaLaunchKernel
+                    0.05%  367.31us         3  122.44us  88.740us  181.17us  cudaFree
+                    0.02%  116.48us       114  1.0210us     121ns  46.018us  cuDeviceGetAttribute
+                    0.00%  9.0020us         1  9.0020us  9.0020us  9.0020us  cuDeviceGetName
+                    0.00%  4.8950us         1  4.8950us  4.8950us  4.8950us  cuDeviceTotalMem
+                    0.00%  4.5910us         1  4.5910us  4.5910us  4.5910us  cuDeviceGetPCIBusId
+                    0.00%     976ns         3     325ns     134ns     684ns  cuDeviceGetCount
+                    0.00%     670ns         2     335ns     129ns     541ns  cuDeviceGet
+                    0.00%     325ns         1     325ns     325ns     325ns  cuModuleGetLoadingMode
+                    0.00%     185ns         1     185ns     185ns     185ns  cuDeviceGetUuid
+==279547== NVPROF is profiling process 279547, command: ./matmul 4096 1
+==279547== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 4096, numBlocks * blockSize = 4096, using matmul_v1
+Error = 0.000000
+==279547== Profiling application: ./matmul 4096 1
+==279547== Profiling result:
+==279547== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v1(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.3744e+11  1.3744e+11  1.3744e+11
+          1                    dram_read_transactions               Device Memory Read Transactions   274474967   274474967   274474967
+          1                   dram_write_transactions              Device Memory Write Transactions     2777847     2777847     2777847
+=== Running Matrix Multiplication Version 2 (N = 4096) ===
+==279560== NVPROF is profiling process 279560, command: ./matmul 4096 2
+N = 4096, numBlocks * blockSize = 4096, using matmul_v2
+Error = 0.000000
+==279560== Profiling application: ./matmul 4096 2
+==279560== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   61.31%  65.399ms         1  65.399ms  65.399ms  65.399ms  matmul_v2(int, float const *, float const *, float*)
+                   25.98%  27.713ms         2  13.856ms  13.838ms  13.875ms  [CUDA memcpy HtoD]
+                   12.72%  13.565ms         1  13.565ms  13.565ms  13.565ms  [CUDA memcpy DtoH]
+      API calls:   57.66%  107.42ms         3  35.806ms  13.998ms  79.326ms  cudaMemcpy
+                   41.27%  76.886ms         3  25.629ms  58.489us  76.761ms  cudaMalloc
+                    0.81%  1.5038ms         1  1.5038ms  1.5038ms  1.5038ms  cudaLaunchKernel
+                    0.19%  352.55us         3  117.52us  82.782us  183.40us  cudaFree
+                    0.07%  122.58us       114  1.0750us     121ns  50.902us  cuDeviceGetAttribute
+                    0.00%  8.8900us         1  8.8900us  8.8900us  8.8900us  cuDeviceGetName
+                    0.00%  4.8440us         1  4.8440us  4.8440us  4.8440us  cuDeviceTotalMem
+                    0.00%  4.6390us         1  4.6390us  4.6390us  4.6390us  cuDeviceGetPCIBusId
+                    0.00%     873ns         3     291ns     130ns     573ns  cuDeviceGetCount
+                    0.00%     624ns         2     312ns     149ns     475ns  cuDeviceGet
+                    0.00%     335ns         1     335ns     335ns     335ns  cuModuleGetLoadingMode
+                    0.00%     196ns         1     196ns     196ns     196ns  cuDeviceGetUuid
+==279575== NVPROF is profiling process 279575, command: ./matmul 4096 2
+==279575== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 4096, numBlocks * blockSize = 4096, using matmul_v2
+Error = 0.000000
+==279575== Profiling application: ./matmul 4096 2
+==279575== Profiling result:
+==279575== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v2(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.3744e+11  1.3744e+11  1.3744e+11
+          1                    dram_read_transactions               Device Memory Read Transactions   270600346   270600346   270600346
+          1                   dram_write_transactions              Device Memory Write Transactions     2199261     2199261     2199261
+=== Running Matrix Multiplication Version 3 (N = 4096) ===
+==279588== NVPROF is profiling process 279588, command: ./matmul 4096 3
+N = 4096, numBlocks * blockSize = 4096, using matmul_v3
+Error = 0.000000
+==279588== Profiling application: ./matmul 4096 3
+==279588== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   47.34%  37.168ms         1  37.168ms  37.168ms  37.168ms  matmul_v3(int, float const *, float const *, float*)
+                   35.31%  27.721ms         2  13.860ms  13.834ms  13.887ms  [CUDA memcpy HtoD]
+                   17.35%  13.626ms         1  13.626ms  13.626ms  13.626ms  [CUDA memcpy DtoH]
+      API calls:   50.00%  79.246ms         3  26.415ms  14.043ms  51.151ms  cudaMemcpy
+                   48.66%  77.123ms         3  25.708ms  57.590us  76.993ms  cudaMalloc
+                    1.03%  1.6353ms         1  1.6353ms  1.6353ms  1.6353ms  cudaLaunchKernel
+                    0.22%  352.17us         3  117.39us  80.972us  182.31us  cudaFree
+                    0.08%  123.28us       114  1.0810us     125ns  46.956us  cuDeviceGetAttribute
+                    0.01%  8.7190us         1  8.7190us  8.7190us  8.7190us  cuDeviceGetName
+                    0.00%  4.6230us         1  4.6230us  4.6230us  4.6230us  cuDeviceTotalMem
+                    0.00%  4.4360us         1  4.4360us  4.4360us  4.4360us  cuDeviceGetPCIBusId
+                    0.00%  1.1700us         3     390ns     168ns     832ns  cuDeviceGetCount
+                    0.00%     653ns         2     326ns     172ns     481ns  cuDeviceGet
+                    0.00%     376ns         1     376ns     376ns     376ns  cuModuleGetLoadingMode
+                    0.00%     255ns         1     255ns     255ns     255ns  cuDeviceGetUuid
+==279603== NVPROF is profiling process 279603, command: ./matmul 4096 3
+==279603== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 4096, numBlocks * blockSize = 4096, using matmul_v3
+Error = 0.000000
+==279603== Profiling application: ./matmul 4096 3
+==279603== Profiling result:
+==279603== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: matmul_v3(int, float const *, float const *, float*)
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1.3744e+11  1.3744e+11  1.3744e+11
+          1                    dram_read_transactions               Device Memory Read Transactions   270991125   270991125   270991125
+          1                   dram_write_transactions              Device Memory Write Transactions     2382638     2382638     2382638
+All runs complete.

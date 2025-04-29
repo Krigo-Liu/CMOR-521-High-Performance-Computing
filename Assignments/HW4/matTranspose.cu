@@ -2,37 +2,53 @@
 #include <iostream>
 #include <cstdio>
 
-#define BLOCKSIZE 32 // or 64, will be passed at compile time
-__global__ void transposeNaive(float *A, float *B, int N) {
-    int i = blockIdx.y * blockDim.y + threadIdx.y; // row
-    int j = blockIdx.x * blockDim.x + threadIdx.x; // col
+#define BLOCKSIZE 32 // or 16, will be passed at compile time
 
-    if (i < N && j < N) {
-        B[j * N + i] = A[i * N + j];
+
+__global__ void transposeNaive(float *A, float *B, int N) {
+    int block_row = blockIdx.y * BLOCKSIZE;
+    int block_col = blockIdx.x * BLOCKSIZE;
+    
+    int tx = threadIdx.x; // thread id within the block
+
+    for (int i = 0; i < BLOCKSIZE && (block_row + i) < N; i++) {
+        int row = block_row + i;
+        int col = block_col + tx;
+        if (col < N) {
+            B[col * N + row] = A[row * N + col];
+        }
     }
 }
 
 __global__ void transposeShared(float *A, float *B, int N) {
-    __shared__ float tile[BLOCKSIZE][BLOCKSIZE+1]; // +1 to avoid bank conflicts
+    __shared__ float tile[BLOCKSIZE][BLOCKSIZE+1];
 
-    int x = blockIdx.x * BLOCKSIZE + threadIdx.x;
-    int y = blockIdx.y * BLOCKSIZE + threadIdx.y;
+    int block_row = blockIdx.y * BLOCKSIZE;
+    int block_col = blockIdx.x * BLOCKSIZE;
 
-    // Read into shared memory
-    if (x < N && y < N) {
-        tile[threadIdx.y][threadIdx.x] = A[y * N + x];
+    int tx = threadIdx.x;
+
+    // Read A into shared memory
+    for (int i = 0; i < BLOCKSIZE && (block_row + i) < N; i++) {
+        int row = block_row + i;
+        int col = block_col + tx;
+        if (col < N) {
+            tile[i][tx] = A[row * N + col];
+        }
     }
 
     __syncthreads();
 
-    // Write out transposed
-    x = blockIdx.y * BLOCKSIZE + threadIdx.x;
-    y = blockIdx.x * BLOCKSIZE + threadIdx.y;
-
-    if (x < N && y < N) {
-        B[y * N + x] = tile[threadIdx.x][threadIdx.y];
+    // Write transposed data from shared memory to B
+    for (int i = 0; i < BLOCKSIZE && (block_col + i) < N; i++) {
+        int row = block_col + i;
+        int col = block_row + tx;
+        if (col < N) {
+            B[row * N + col] = tile[tx][i];
+        }
     }
 }
+
 
 
 void initMatrix(float *mat, int N) {
@@ -71,7 +87,8 @@ int main(int argc, char *argv[]) {
     int numBlocks = (N + BLOCKSIZE - 1) / BLOCKSIZE;
     printf("N = %d, numBlocks * blockSize = %d\n", N, numBlocks * BLOCKSIZE);
     dim3 gridDims(numBlocks, numBlocks);
-    dim3 blockDims(BLOCKSIZE, BLOCKSIZE);
+    //dim3 blockDims(BLOCKSIZE, BLOCKSIZE);
+    dim3 blockDims(BLOCKSIZE);
 
 
     // -------- Naive version --------

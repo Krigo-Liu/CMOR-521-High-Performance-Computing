@@ -2,7 +2,7 @@
 #include <math.h>
 #include <cuda_runtime.h>
 
-#define BLOCKSIZE 64
+#define BLOCKSIZE 32
 
 //------------------------------------------------------------
 // v1: naive version (original i=row, j=col)
@@ -72,6 +72,7 @@ __global__ void matmul_v3(int N, const float *A, const float *B, float *C) {
         C[j * N + i] = tmp;
     }
 }
+
 
 //------------------------------------------------------------
 // main function
