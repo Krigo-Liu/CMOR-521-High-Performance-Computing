@@ -56,26 +56,18 @@
 
 \section{Directory structure}
 Below is my file organization for this assignment. 
-My final zip file follows this structure ( \texttt{docs/} for LaTeX, \texttt{src/} for source files, and \texttt{include/} for header files):
+My final zip file follows this structure ( \texttt{docs/} for LaTeX):
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{Assignments/HW3/docs/images/structure.png}
+    \includegraphics[width=0.5\linewidth]{Assignments/HW4/docs/images/structure.png}
     \caption{structure}
     \label{fig:structure}
 \end{figure}
 
 \begin{itemize}
-    \item The \verb|include| folder and \verb|src| folder have \verb|matrixMul.hpp| and \verb|matrixMul.cpp|. In \verb|matrixMul.cpp|, there are 2 help function 
-    \begin{itemize}
-        \item \texttt{void testMul(const int N, double* serialC, double* mpiC);}  
-    
-        \item \texttt{void serialMatMult(const int N, double* C, const double* A, const double* B);}  
-    \end{itemize}
-
-    \item The \verb|main_CANNON.cpp| and \verb|main_SUMMA.cpp| contain the Cannon's algorithm and SUMMA algorithm respectively.
-    \item The \verb|cannon_mpi| and \verb|summa_mpi| are executable files. Both of them already complied by \verb|-O3| optimization flag.
-    \item The \verb|cannon.slurm| and \verb|summa.slurm| are sbatch scripts.
+    \item The \verb|matmul.cu| contain verion 1, verion 2, and version 3 for matrix multiplication. \verb|matmul| is the executable file after complied by the command in \verb|matmul.slurm|. \verb|matrmul_BLOCKSIZE16/32.txt| are the file contain the report data from \verb|nvprof| withe different \verb|BLOCKSIZE|.
+    \item The \verb|matTranspose.cu| contain verion 1, verion 2, and version 3 for matrix multiplication. \verb|matTranspose| is the executable file after complied by the command in \verb|matTranspose.slurm|. \verb|matTranspose_BLOCKSIZE16/32.txt| are the file contain the report data from \verb|nvprof| withe different \verb|BLOCKSIZE|.
 \end{itemize}
 
 \newpage
