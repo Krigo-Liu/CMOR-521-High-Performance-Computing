@@ -1,0 +1,96 @@
+Job running on nodes: /bin/bash
+=================================================
+Lmod Warning:
+-------------------------------------------------------------------------------
+The following dependent module(s) are not currently loaded: FFTW.MPI/3.3.10
+(required by: foss/2023b), GCC/13.2.0 (required by: foss/2023b), OpenMPI/4.1.6
+(required by: foss/2023b), ScaLAPACK/2.2.0-fb (required by: foss/2023b)
+-------------------------------------------------------------------------------
+
+
+
+=== Running Matrix Transpose with both naive version and shared memoryversion (N = 2048) ===
+==281287== NVPROF is profiling process 281287, command: ./matTranspose 2048
+N = 2048, numBlocks * blockSize = 2048
+Transpose correct.
+Transpose correct.
+==281287== Profiling application: ./matTranspose 2048
+==281287== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   68.87%  7.6529ms         2  3.8265ms  2.3096ms  5.3434ms  [CUDA memcpy DtoH]
+                   28.09%  3.1216ms         1  3.1216ms  3.1216ms  3.1216ms  [CUDA memcpy HtoD]
+                    1.80%  199.97us         1  199.97us  199.97us  199.97us  transposeNaive(float*, float*, int)
+                    0.84%  92.960us         1  92.960us  92.960us  92.960us  transposeShared(float*, float*, int)
+                    0.40%  44.576us         2  22.288us  19.424us  25.152us  [CUDA memset]
+      API calls:   85.23%  89.171ms         2  44.585ms  57.305us  89.114ms  cudaMalloc
+                   12.07%  12.631ms         3  4.2103ms  2.6329ms  6.7337ms  cudaMemcpy
+                    2.30%  2.4028ms         2  1.2014ms  14.623us  2.3881ms  cudaLaunchKernel
+                    0.22%  235.09us         2  117.54us  73.169us  161.92us  cudaFree
+                    0.11%  119.03us       114  1.0440us     127ns  46.854us  cuDeviceGetAttribute
+                    0.05%  49.800us         2  24.900us  23.707us  26.093us  cudaMemset
+                    0.01%  8.3500us         1  8.3500us  8.3500us  8.3500us  cuDeviceGetName
+                    0.01%  5.2970us         1  5.2970us  5.2970us  5.2970us  cuDeviceGetPCIBusId
+                    0.00%  4.9560us         1  4.9560us  4.9560us  4.9560us  cuDeviceTotalMem
+                    0.00%  1.1570us         3     385ns     169ns     782ns  cuDeviceGetCount
+                    0.00%     964ns         2     482ns     157ns     807ns  cuDeviceGet
+                    0.00%     405ns         1     405ns     405ns     405ns  cuModuleGetLoadingMode
+                    0.00%     231ns         1     231ns     231ns     231ns  cuDeviceGetUuid
+==281302== NVPROF is profiling process 281302, command: ./matTranspose 2048
+==281302== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 2048, numBlocks * blockSize = 2048
+Transpose correct.
+Transpose correct.
+==281302== Profiling application: ./matTranspose 2048
+==281302== Profiling result:
+==281302== Metric result:
+Invocations                               Metric Name                        Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: transposeNaive(float*, float*, int)
+          1                            gld_throughput                    Global Load Throughput  78.823GB/s  78.823GB/s  78.823GB/s
+          1                            gst_throughput                   Global Store Throughput  630.59GB/s  630.59GB/s  630.59GB/s
+    Kernel: transposeShared(float*, float*, int)
+          1                            gld_throughput                    Global Load Throughput  154.65GB/s  154.65GB/s  154.65GB/s
+          1                            gst_throughput                   Global Store Throughput  154.65GB/s  154.65GB/s  154.65GB/s
+=== Running Matrix Transpose with both naive version and shared memoryversion (N = 4096) ===
+==281316== NVPROF is profiling process 281316, command: ./matTranspose 4096
+N = 4096, numBlocks * blockSize = 4096
+Transpose correct.
+Transpose correct.
+==281316== Profiling application: ./matTranspose 4096
+==281316== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   70.72%  36.142ms         2  18.071ms  13.417ms  22.725ms  [CUDA memcpy DtoH]
+                   26.54%  13.563ms         1  13.563ms  13.563ms  13.563ms  [CUDA memcpy HtoD]
+                    1.74%  890.84us         1  890.84us  890.84us  890.84us  transposeNaive(float*, float*, int)
+                    0.69%  352.45us         1  352.45us  352.45us  352.45us  transposeShared(float*, float*, int)
+                    0.31%  158.98us         2  79.487us  76.288us  82.687us  [CUDA memset]
+      API calls:   58.37%  76.876ms         2  38.438ms  66.214us  76.810ms  cudaMalloc
+                   40.03%  52.722ms         3  17.574ms  13.746ms  24.804ms  cudaMemcpy
+                    1.23%  1.6229ms         2  811.44us  87.075us  1.5358ms  cudaFree
+                    0.22%  290.01us         2  145.01us  14.953us  275.06us  cudaLaunchKernel
+                    0.09%  118.54us       114  1.0390us     125ns  47.332us  cuDeviceGetAttribute
+                    0.04%  56.074us         2  28.037us  26.133us  29.941us  cudaMemset
+                    0.01%  15.377us         1  15.377us  15.377us  15.377us  cuDeviceTotalMem
+                    0.01%  8.8930us         1  8.8930us  8.8930us  8.8930us  cuDeviceGetName
+                    0.00%  3.9870us         1  3.9870us  3.9870us  3.9870us  cuDeviceGetPCIBusId
+                    0.00%  1.2300us         3     410ns     168ns     869ns  cuDeviceGetCount
+                    0.00%     698ns         2     349ns     147ns     551ns  cuDeviceGet
+                    0.00%     397ns         1     397ns     397ns     397ns  cuModuleGetLoadingMode
+                    0.00%     207ns         1     207ns     207ns     207ns  cuDeviceGetUuid
+==281332== NVPROF is profiling process 281332, command: ./matTranspose 4096
+==281332== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+N = 4096, numBlocks * blockSize = 4096
+Transpose correct.
+Transpose correct.
+==281332== Profiling application: ./matTranspose 4096
+==281332== Profiling result:
+==281332== Metric result:
+Invocations                               Metric Name                        Metric Description         Min         Max         Avg
+Device "Tesla V100-PCIE-32GB (0)"
+    Kernel: transposeNaive(float*, float*, int)
+          1                            gld_throughput                    Global Load Throughput  70.534GB/s  70.534GB/s  70.534GB/s
+          1                            gst_throughput                   Global Store Throughput  564.27GB/s  564.27GB/s  564.27GB/s
+    Kernel: transposeShared(float*, float*, int)
+          1                            gld_throughput                    Global Load Throughput  182.60GB/s  182.60GB/s  182.60GB/s
+          1                            gst_throughput                   Global Store Throughput  182.60GB/s  182.60GB/s  182.60GB/s
+All runs complete.
